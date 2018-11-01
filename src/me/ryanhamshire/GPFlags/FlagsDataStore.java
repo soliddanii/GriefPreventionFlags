@@ -65,7 +65,7 @@ public class FlagsDataStore
 		
 		this.addDefault(defaults, Messages.AddEnablePvP, "Disabled GriefPrevention and GPFlags player vs. player combat limitations in this land claim.", null);
 		this.addDefault(defaults, Messages.RemoveEnabledPvP, "GriefPrevention and GPFlags may now limit player combat in this land claim.", null);
-		
+
 		this.addDefault(defaults, Messages.MessageRequired, "Please specify a message to send.", null);
 		this.addDefault(defaults, Messages.CommandRequired, "Please specify a command line to execute.", null);
 		this.addDefault(defaults, Messages.ConsoleCommandRequired, "Please specify a command line(s) to execute.  You may find the %name% and %uuid% placeholders useful.  Separate multiple command lines with a semicolon (;).", null);
