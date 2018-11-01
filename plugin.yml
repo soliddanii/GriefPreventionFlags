@@ -3,7 +3,7 @@ main: me.ryanhamshire.GPFlags.GPFlags
 depend: [GriefPrevention]
 softdepend: [mcMMO]
 authors: [Big_Scary, ShaneBee]
-version: 4.8.0
+version: 4.5.3
 commands:
    setclaimflag:
       description: Sets a flag on a GriefPrevention land claim.
