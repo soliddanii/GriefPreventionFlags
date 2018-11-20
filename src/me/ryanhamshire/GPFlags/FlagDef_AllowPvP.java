@@ -139,6 +139,8 @@ public class FlagDef_AllowPvP extends FlagDefinition
         Flag flag = this.GetFlagInstanceAtLocation(damager.getLocation(), null);
         if(flag != null) return;
 
+        if(event.getEntityType() != EntityType.PLAYER) return;
+
         //otherwise disallow
         event.setCancelled(true);
         if(projectile != null) projectile.remove();
