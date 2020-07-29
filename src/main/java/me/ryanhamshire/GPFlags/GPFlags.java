@@ -109,9 +109,6 @@ public class GPFlags extends JavaPlugin {
     //for convenience, a reference to the instance of this plugin
     private static GPFlags instance;
 
-    //for logging to the console and log file
-    private static Logger log = Logger.getLogger("Minecraft");
-
     //this handles customizable messages
     private FlagsDataStore flagsDataStore;
     
@@ -119,7 +116,7 @@ public class GPFlags extends JavaPlugin {
     private FlagDef_PrivateChatDiscord discordsrvListener = null;
 
     //this handles flags
-    private FlagManager flagManager = new FlagManager();
+    private final FlagManager flagManager = new FlagManager();
 
     //this handles worldwide settings (aka global flags)
     private WorldSettingsManager worldSettingsManager = new WorldSettingsManager();
@@ -127,9 +124,17 @@ public class GPFlags extends JavaPlugin {
     private boolean registeredFlagDefinitions = false;
     private PlayerListener playerListener;
 
+    private static boolean LOG_ENTER_EXIT_COMMANDS = true;
+
     //adds a server log entry
     public static synchronized void addLogEntry(String entry) {
     	Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[&bGPFlags&7] " + entry));
+    }
+
+    public static void logFlagCommands(String log) {
+        if (LOG_ENTER_EXIT_COMMANDS) {
+            addLogEntry(log);
+        }
     }
 
     public void onEnable() {
@@ -179,6 +184,9 @@ public class GPFlags extends JavaPlugin {
         for (String worldName : worldSettingsKeys) {
             WorldSettings settings = this.worldSettingsManager.create(worldName);
 
+            LOG_ENTER_EXIT_COMMANDS = inConfig.getBoolean("Settings.Log Enter/Exit Messages To Console", true);
+            outConfig.set("Settings.Log Enter/Exit Messages To Console", LOG_ENTER_EXIT_COMMANDS);
+
             settings.worldGamemodeDefault = inConfig.getString("World Flags." + worldName + ".Default Gamemode", "survival");
             if (!settings.worldGamemodeDefault.equalsIgnoreCase("survival") && !settings.worldGamemodeDefault.equalsIgnoreCase("creative") &&
                     !settings.worldGamemodeDefault.equalsIgnoreCase("adventure") && !settings.worldGamemodeDefault.equalsIgnoreCase("spectator")) {
@@ -209,6 +217,9 @@ public class GPFlags extends JavaPlugin {
             // Adds default biomes to be ignored in the ChangeBiome flag
             settings.biomeBlackList = inConfig.getList("World Flags." + worldName + ".Biomes.Blacklist", getVersionControl().getDefaultBiomes());
             outConfig.set("World Flags." + worldName + ".Biomes.Blacklist", settings.biomeBlackList);
+
+            settings.noMonsterSpawnIgnoreSpawners = inConfig.getBoolean("World Flags." + worldName + ".NoMonsterSpawn Flag Ignores Spawners and Eggs", true);
+            outConfig.set("World Flags." + worldName + ".NoMonsterSpawn Flag Ignores Spawners and Eggs", settings.noMonsterSpawnIgnoreSpawners);
 
             outConfig.options().header("GriefPrevention Flags\n" + "Plugin Version: " + this.getDescription().getVersion() +
                     "\nServer Version: " + getServer().getVersion() + "\n\n");
@@ -324,6 +335,7 @@ public class GPFlags extends JavaPlugin {
         } else {
             ((FlagDef_PlayerGamemode) this.flagManager.getFlagDefinitionByName("PlayerGamemode")).updateSettings(this.worldSettingsManager);
             ((FlagDef_AllowPvP) this.flagManager.getFlagDefinitionByName("AllowPvP")).updateSettings(this.worldSettingsManager);
+            ((FlagDef_NoMonsterSpawns) this.flagManager.getFlagDefinitionByName("NoMonsterSpawns")).updateSettings(this.worldSettingsManager);
         }
 
         try {
