@@ -241,6 +241,9 @@ public class FlagsDataStore {
 
 		this.addDefault(defaults, Messages.NoOwnerFlag, "You can not set both OwnerFly and OwnerMemberFly flags in one claim", null);
 
+		this.addDefault(defaults, Messages.EnablePrivateChat, "Now preventing players outside the claim from hearing your conversations.", null);
+		this.addDefault(defaults, Messages.DisablePrivateChat, "Your conversations inside this claim can now be heard anywhere.", null);
+
 		this.addDefault(defaults, Messages.ChangeBiomeSet, "The biome in this claim has been set to {0}", "0: Biome");
 		this.addDefault(defaults, Messages.ChangeBiomeUnset, "The biome in this claim has been restored", null);
 

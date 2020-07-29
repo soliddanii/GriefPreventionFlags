@@ -1,16 +1,13 @@
 package me.ryanhamshire.GPFlags;
 
-import com.google.common.io.Files;
-import me.ryanhamshire.GPFlags.flags.*;
-import me.ryanhamshire.GPFlags.listener.PlayerListener;
-import me.ryanhamshire.GPFlags.metrics.Metrics;
-import me.ryanhamshire.GPFlags.util.Current;
-import me.ryanhamshire.GPFlags.util.Legacy;
-import me.ryanhamshire.GPFlags.util.Util;
-import me.ryanhamshire.GPFlags.util.VersionControl;
-import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.PlayerData;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.logging.Logger;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -22,13 +19,85 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.logging.Logger;
+import com.google.common.io.Files;
+
+import github.scarsz.discordsrv.DiscordSRV;
+import me.ryanhamshire.GPFlags.flags.FlagDef_AllowPvP;
+import me.ryanhamshire.GPFlags.flags.FlagDef_ChangeBiome;
+import me.ryanhamshire.GPFlags.flags.FlagDef_CommandBlackList;
+import me.ryanhamshire.GPFlags.flags.FlagDef_CommandWhiteList;
+import me.ryanhamshire.GPFlags.flags.FlagDef_EnterCommand;
+import me.ryanhamshire.GPFlags.flags.FlagDef_EnterCommand_Members;
+import me.ryanhamshire.GPFlags.flags.FlagDef_EnterCommand_Owner;
+import me.ryanhamshire.GPFlags.flags.FlagDef_EnterMessage;
+import me.ryanhamshire.GPFlags.flags.FlagDef_EnterPlayerCommand;
+import me.ryanhamshire.GPFlags.flags.FlagDef_ExitCommand;
+import me.ryanhamshire.GPFlags.flags.FlagDef_ExitCommand_Members;
+import me.ryanhamshire.GPFlags.flags.FlagDef_ExitCommand_Owner;
+import me.ryanhamshire.GPFlags.flags.FlagDef_ExitMessage;
+import me.ryanhamshire.GPFlags.flags.FlagDef_ExitPlayerCommand;
+import me.ryanhamshire.GPFlags.flags.FlagDef_HealthRegen;
+import me.ryanhamshire.GPFlags.flags.FlagDef_InfiniteArrows;
+import me.ryanhamshire.GPFlags.flags.FlagDef_KeepInventory;
+import me.ryanhamshire.GPFlags.flags.FlagDef_KeepLevel;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NetherPortalConsoleCommand;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NetherPortalPlayerCommand;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoChorusFruit;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoCombatLoot;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoEnderPearl;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoEnter;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoEnterPlayer;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoExpiration;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoExplosionDamage;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoFallDamage;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoFireDamage;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoFireSpread;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoFlight;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoFluidFlow;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoGrowth;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoHunger;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoIceForm;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoItemDamage;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoItemDrop;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoItemPickup;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoLeafDecay;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoLootProtection;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoMcMMODeathPenalty;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoMcMMOSkills;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoMcMMOXP;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoMobDamage;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoMobSpawns;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoMobSpawnsType;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoMonsterSpawns;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoOpenDoors;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoPetDamage;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoPlayerDamage;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoPlayerDamageByMonster;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoSnowForm;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoVehicle;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoVineGrowth;
+import me.ryanhamshire.GPFlags.flags.FlagDef_NoWeatherChange;
+import me.ryanhamshire.GPFlags.flags.FlagDef_OwnerFly;
+import me.ryanhamshire.GPFlags.flags.FlagDef_OwnerMemberFly;
+import me.ryanhamshire.GPFlags.flags.FlagDef_PlayerGamemode;
+import me.ryanhamshire.GPFlags.flags.FlagDef_PlayerTime;
+import me.ryanhamshire.GPFlags.flags.FlagDef_PlayerWeather;
+import me.ryanhamshire.GPFlags.flags.FlagDef_PrivateChat;
+import me.ryanhamshire.GPFlags.flags.FlagDef_PrivateChatDiscord;
+import me.ryanhamshire.GPFlags.flags.FlagDef_RaidMemberOnly;
+import me.ryanhamshire.GPFlags.flags.FlagDef_RespawnLocation;
+import me.ryanhamshire.GPFlags.flags.FlagDef_SpleefArena;
+import me.ryanhamshire.GPFlags.flags.FlagDef_TrappedDestination;
+import me.ryanhamshire.GPFlags.flags.FlagDefinition;
+import me.ryanhamshire.GPFlags.listener.PlayerListener;
+import me.ryanhamshire.GPFlags.metrics.Metrics;
+import me.ryanhamshire.GPFlags.util.Current;
+import me.ryanhamshire.GPFlags.util.Legacy;
+import me.ryanhamshire.GPFlags.util.Util;
+import me.ryanhamshire.GPFlags.util.VersionControl;
+import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.PlayerData;
 
 /**
  * <b>Main GriefPrevention Flags class</b>
@@ -45,6 +114,9 @@ public class GPFlags extends JavaPlugin {
 
     //this handles customizable messages
     private FlagsDataStore flagsDataStore;
+    
+    //this handles discordsrv private chat flag
+    private FlagDef_PrivateChatDiscord discordsrvListener = null;
 
     //this handles flags
     private FlagManager flagManager = new FlagManager();
@@ -241,6 +313,14 @@ public class GPFlags extends JavaPlugin {
             //if failed, we just won't have those flags available
             catch (NoClassDefFoundError ignore) {
             }
+            
+            if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
+            	this.discordsrvListener = new FlagDef_PrivateChatDiscord(this.flagManager, this);
+            	this.flagManager.registerFlagDefinition(this.discordsrvListener);
+            	DiscordSRV.api.subscribe(this.discordsrvListener);
+            } else {
+            	this.flagManager.registerFlagDefinition(new FlagDef_PrivateChat(this.flagManager, this));
+            } 
         } else {
             ((FlagDef_PlayerGamemode) this.flagManager.getFlagDefinitionByName("PlayerGamemode")).updateSettings(this.worldSettingsManager);
             ((FlagDef_AllowPvP) this.flagManager.getFlagDefinitionByName("AllowPvP")).updateSettings(this.worldSettingsManager);

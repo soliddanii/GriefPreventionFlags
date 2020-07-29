@@ -1,8 +1,8 @@
 name: GriefPreventionFlags
 main: me.ryanhamshire.GPFlags.GPFlags
 depend: [GriefPrevention]
-softdepend: [mcMMO]
-authors: [Big_Scary, ShaneBee, DmitryRendov]
+softdepend: [mcMMO, DiscordSRV]
+authors: [Big_Scary, ShaneBee, DmitryRendov, soliddanii]
 description: GriefPrevention Add-On to set flags in claims.
 website: https://www.spigotmc.org/resources/griefprevention-flags.55773/
 version: '${project.version}'
