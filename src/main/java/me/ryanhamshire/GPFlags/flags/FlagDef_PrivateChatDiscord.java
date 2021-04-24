@@ -37,19 +37,17 @@ public class FlagDef_PrivateChatDiscord extends FlagDefinition
         Flag flag = this.GetFlagInstanceAtLocation(player.getLocation(), player);
         if(flag == null) return;
         
+        // Indicate that the message is private
+        String colorCode = event.getMessage().startsWith("*") ? "f" : "7";
+        String newDisplayName = player.getDisplayName().replaceAll("\\s?((?:§\\w)?\\w+(?:§\\w)?)$", " §"+colorCode+"[P] $1");
+        event.setFormat(newDisplayName.trim()+": %2$s");
+        
         // Bypass the flag
         if(event.getMessage().startsWith("*"))
         {
-            event.setMessage("§l"+event.getMessage().substring(1));
+            event.setMessage("§r"+event.getMessage().substring(1));
             return;
         }
-        
-        // Indicate that the message is private
-        //event.setMessage(ChatColor.GRAY+"[P] "+event.getMessage());
-        //event.setFormat(String.format("%1$s: %2$s", player.getDisplayName(), event.getMessage()));
-        String newDisplayName = player.getDisplayName().replaceAll("\\s?((?:§\\w)?\\w+(?:§\\w)?)$", " §7[P] $1");
-        newDisplayName = newDisplayName.trim();
-        player.setDisplayName(newDisplayName);
         
         // Borrar todos los jugadores receptores del mensaje
         event.getRecipients().clear();
@@ -82,7 +80,7 @@ public class FlagDef_PrivateChatDiscord extends FlagDefinition
         if(flag == null) return;
         
         // Bypass the flag
-        if(event.getMessage().startsWith("§l"))
+        if(event.getMessage().startsWith("§r"))
         {
             event.setMessage(event.getMessage().substring(2));
             return;
