@@ -1,6 +1,10 @@
 package me.ryanhamshire.GPFlags.flags;
 
-import me.ryanhamshire.GPFlags.*;
+import me.ryanhamshire.GPFlags.Flag;
+import me.ryanhamshire.GPFlags.FlagManager;
+import me.ryanhamshire.GPFlags.GPFlags;
+import me.ryanhamshire.GPFlags.MessageSpecifier;
+import me.ryanhamshire.GPFlags.Messages;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -20,14 +24,18 @@ import java.util.List;
 
 public class FlagDef_InfiniteArrows extends FlagDefinition {
 
+    public FlagDef_InfiniteArrows(FlagManager manager, GPFlags plugin) {
+        super(manager, plugin);
+    }
+
     @EventHandler(priority = EventPriority.LOW)
     public void onProjectileHit(ProjectileHitEvent event) {
-        if (event.getEntityType() != EntityType.ARROW && event.getEntityType() != EntityType.SNOWBALL) return;
+        if (event.getEntityType() != EntityType.ARROW) return;
 
         Projectile arrow = event.getEntity();
 
         ProjectileSource source = arrow.getShooter();
-        if (source == null || !(source instanceof Player)) return;
+        if (!(source instanceof Player)) return;
 
         Player player = (Player) source;
         if (player.getGameMode() == GameMode.CREATIVE) return;
@@ -43,17 +51,13 @@ public class FlagDef_InfiniteArrows extends FlagDefinition {
         inventory.addItem(new ItemStack(Material.ARROW));
     }
 
-    public FlagDef_InfiniteArrows(FlagManager manager, GPFlags plugin) {
-        super(manager, plugin);
-    }
-
     @Override
     public String getName() {
         return "InfiniteArrows";
     }
 
     @Override
-	public MessageSpecifier getSetMessage(String parameters) {
+    public MessageSpecifier getSetMessage(String parameters) {
         return new MessageSpecifier(Messages.EnableInfiniteArrows);
     }
 

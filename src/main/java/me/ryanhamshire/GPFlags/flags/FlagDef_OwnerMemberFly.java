@@ -6,8 +6,10 @@ import me.ryanhamshire.GPFlags.GPFlags;
 import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
 import me.ryanhamshire.GPFlags.TextMode;
+import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,15 +17,21 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class FlagDef_OwnerMemberFly extends PlayerMovementFlagDefinition implements Listener {
+
+    public FlagDef_OwnerMemberFly(FlagManager manager, GPFlags plugin) {
+        super(manager, plugin);
+    }
 
     @Override
     public boolean allowMovement(Player player, Location lastLocation, Location to, Claim claimFrom, Claim claim) {
         if (lastLocation == null) return true;
-        Flag flag = GPFlags.getInstance().getFlagManager().getFlag(claim, this);
+        Flag flag = getFlagInstanceAtLocation(to, player);
         Flag ownerFly = GPFlags.getInstance().getFlagManager().getFlag(claim, "OwnerFly");
 
         if (flag == null && ownerFly == null) {
@@ -44,23 +52,25 @@ public class FlagDef_OwnerMemberFly extends PlayerMovementFlagDefinition impleme
                 if (player.getLocation().getY() - block.getY() >= 4) {
                     GPFlags.getInstance().getPlayerListener().addFallingPlayer(player);
                 }
-                GPFlags.sendMessage(player, TextMode.Warn, Messages.ExitFlightDisabled);
+                Util.sendClaimMessage(player, TextMode.Warn, Messages.ExitFlightDisabled);
                 return true;
             }
             if (player.getAllowFlight() && mode != GameMode.CREATIVE && mode != GameMode.SPECTATOR &&
                     !player.hasPermission("gpflags.bypass.fly") && !player.hasPermission("gpflags.bypass")) {
                 player.setAllowFlight(false);
-                GPFlags.sendMessage(player, TextMode.Warn, Messages.ExitFlightDisabled);
+                Util.sendClaimMessage(player, TextMode.Warn, Messages.ExitFlightDisabled);
             }
             return true;
         }
-        if (flag == this.GetFlagInstanceAtLocation(lastLocation, player)) return true;
+        if (flag == this.getFlagInstanceAtLocation(lastLocation, player)) return true;
         if (flag == null) return true;
         if (claim == null) return true;
 
         if (claim.allowAccess(player) == null) {
-            player.setAllowFlight(true);
-            GPFlags.sendMessage(player, TextMode.Success, Messages.EnterFlightEnabled);
+            Bukkit.getScheduler().runTaskLater(GPFlags.getInstance(), () -> {
+                player.setAllowFlight(true);
+                Util.sendClaimMessage(player, TextMode.Success, Messages.EnterFlightEnabled);
+            }, 1);
             return true;
         } else {
             GameMode mode = player.getGameMode();
@@ -68,37 +78,41 @@ public class FlagDef_OwnerMemberFly extends PlayerMovementFlagDefinition impleme
                     !player.hasPermission("gpflags.bypass.fly") && !player.hasPermission("gpflags.bypass")) {
                 GPFlags.getInstance().getPlayerListener().addFallingPlayer(player);
                 player.setAllowFlight(false);
-                GPFlags.sendMessage(player, TextMode.Warn, Messages.ExitFlightDisabled);
+                Util.sendClaimMessage(player, TextMode.Warn, Messages.ExitFlightDisabled);
             }
             if (player.getAllowFlight() && mode != GameMode.CREATIVE && mode != GameMode.SPECTATOR &&
                     !player.hasPermission("gpflags.bypass.fly") && !player.hasPermission("gpflags.bypass")) {
                 player.setAllowFlight(false);
-                GPFlags.sendMessage(player, TextMode.Warn, Messages.ExitFlightDisabled);
+                Util.sendClaimMessage(player, TextMode.Warn, Messages.ExitFlightDisabled);
             }
         }
         return true;
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    private void onJoin(PlayerJoinEvent event) {
+        handleFlight(event.getPlayer());
+    }
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
+    @EventHandler(priority = EventPriority.MONITOR)
+    private void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        Flag flag = this.GetFlagInstanceAtLocation(player.getLocation(), player);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> handleFlight(player), 1);
+    }
+
+    private void handleFlight(Player player) {
+        Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
         Material below = player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
 
-        if (flag != null && claim.allowAccess(player) == null) {
+        if (flag != null && claim != null && claim.allowAccess(player) == null) {
             player.setAllowFlight(true);
+            Util.sendClaimMessage(player, TextMode.Success, Messages.EnterFlightEnabled);
             if (below == Material.AIR) {
                 player.setFlying(true);
             }
         }
     }
-
-    public FlagDef_OwnerMemberFly(FlagManager manager, GPFlags plugin) {
-        super(manager, plugin);
-    }
-
 
     @Override
     public String getName() {
