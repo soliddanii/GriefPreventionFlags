@@ -1,13 +1,13 @@
 package me.ryanhamshire.GPFlags.flags;
 
-import java.util.Collection;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import me.ryanhamshire.GPFlags.FlagManager;
 import me.ryanhamshire.GPFlags.GPFlags;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+
+import java.util.Collection;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Base flag definition for time based flags
@@ -26,13 +26,18 @@ public abstract class TimedPlayerFlagDefinition extends FlagDefinition implement
     public abstract long getPlayerCheckFrequency_Ticks();
 
     public abstract void processPlayer(Player player);
+    
+    private boolean isSetup = false;
 
     public void firstTimeSetup() {
         super.firstTimeSetup();
-
+        
+        if (isSetup) return;
+        
         this.taskIntervalTicks = this.getPlayerCheckFrequency_Ticks() / Bukkit.getServer().getMaxPlayers();
         if (this.taskIntervalTicks < 1) this.taskIntervalTicks = 1;
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this, TimedPlayerFlagDefinition.tickOffset++, Math.max(this.taskIntervalTicks, 1));
+        isSetup = true;
     }
 
     @Override

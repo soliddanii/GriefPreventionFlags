@@ -5,6 +5,9 @@ package me.ryanhamshire.GPFlags;
  */
 public enum Messages {
 
+    NoCommandPermission,
+    UnknownCommand,
+    PlayerOnlyCommand,
     NoFlagsInThisClaim,
     ThatFlagNotSet,
     InvalidFlagDefName,
@@ -16,6 +19,8 @@ public enum Messages {
     DefaultFlagUnSet,
     DisableMonsterSpawns,
     EnableMonsterSpawns,
+    DisableMonsters,
+    EnableMonsters,
     ReloadComplete,
     AddEnablePvP,
     RemoveEnabledPvP,
@@ -154,7 +159,13 @@ public enum Messages {
     EnabledNoExplosionDamage,
     DisabledNoExplosionDamage,
     NoOwnerFlag,
-
+    EnableNoElytra,
+    DisableNoElytra,
+    EnableViewContainers,
+    DisableViewContainers,
+    EnableReadLecterns,
+    DisableReadLecterns,
+    
     //EXPERIMENTAL
     ChangeBiomeSet,
     ChangeBiomeUnset,
@@ -169,6 +180,8 @@ public enum Messages {
     EnabledNoVehicle,
     DisabledNoVehicle,
     NoPlaceVehicle,
+    NoEnterVehicle,
+    NoVehicleAllowed,
 
     EnabledNoMobSpawnsType,
     DisabledNoMobSpawnsType,
@@ -178,5 +191,8 @@ public enum Messages {
     DisabledNoItemDamage,
     EnabledRaidMemberOnly,
     DisabledRaidMemberOnly,
-    RaidMemberOnlyDeny
+    RaidMemberOnlyDeny,
+
+    EnabledProtectNamedMobs,
+    DisabledProtectNamedMobs
 }

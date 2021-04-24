@@ -1,20 +1,30 @@
 package me.ryanhamshire.GPFlags.flags;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import me.ryanhamshire.GPFlags.*;
+import me.ryanhamshire.GPFlags.Flag;
+import me.ryanhamshire.GPFlags.FlagManager;
+import me.ryanhamshire.GPFlags.GPFlags;
+import me.ryanhamshire.GPFlags.MessageSpecifier;
+import me.ryanhamshire.GPFlags.Messages;
+import me.ryanhamshire.GPFlags.SetFlagResult;
+import me.ryanhamshire.GPFlags.util.Util;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class FlagDef_NoHunger extends TimedPlayerFlagDefinition {
 
-    private ConcurrentHashMap<UUID, Integer> lastFoodMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Integer> lastFoodMap = new ConcurrentHashMap<>();
+
+    public FlagDef_NoHunger(FlagManager manager, GPFlags plugin) {
+        super(manager, plugin);
+    }
 
     @Override
     public long getPlayerCheckFrequency_Ticks() {
@@ -38,7 +48,7 @@ public class FlagDef_NoHunger extends TimedPlayerFlagDefinition {
                 try {
                     healAmount = Integer.parseInt(flag.parameters);
                 } catch (NumberFormatException e) {
-                    GPFlags.addLogEntry("Problem with hunger level regen amount @ " + player.getLocation().getBlock().getLocation().toString());
+                    Util.log("Problem with hunger level regen amount @ " + player.getLocation().getBlock().getLocation().toString());
                 }
             }
 
@@ -63,10 +73,6 @@ public class FlagDef_NoHunger extends TimedPlayerFlagDefinition {
         player.setSaturation(player.getFoodLevel());
     }
 
-    public FlagDef_NoHunger(FlagManager manager, GPFlags plugin) {
-        super(manager, plugin);
-    }
-
     @Override
     public String getName() {
         return "NoHunger";
@@ -83,7 +89,7 @@ public class FlagDef_NoHunger extends TimedPlayerFlagDefinition {
     }
 
     @Override
-    public SetFlagResult ValidateParameters(String parameters) {
+    public SetFlagResult validateParameters(String parameters) {
         if (!parameters.isEmpty()) {
             int amount;
             try {

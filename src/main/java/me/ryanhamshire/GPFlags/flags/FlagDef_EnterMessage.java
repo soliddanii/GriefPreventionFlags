@@ -7,6 +7,7 @@ import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
 import me.ryanhamshire.GPFlags.SetFlagResult;
 import me.ryanhamshire.GPFlags.TextMode;
+import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Location;
@@ -16,7 +17,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class FlagDef_EnterMessage extends PlayerMovementFlagDefinition {
 
-    private String prefix;
+    private final String prefix;
 
     public FlagDef_EnterMessage(FlagManager manager, GPFlags plugin) {
         super(manager, plugin);
@@ -26,7 +27,7 @@ public class FlagDef_EnterMessage extends PlayerMovementFlagDefinition {
     @Override
     public boolean allowMovement(Player player, Location lastLocation, Location to, Claim claimFrom, Claim claimTo) {
         if (lastLocation == null) return true;
-        Flag flag = this.GetFlagInstanceAtLocation(to, player);
+        Flag flag = this.getFlagInstanceAtLocation(to, player);
         if (flag == null) return true;
 
         // get specific EnterMessage flag of destination claim and ExitMessage flag of origin claim
@@ -50,19 +51,19 @@ public class FlagDef_EnterMessage extends PlayerMovementFlagDefinition {
             message = message.replace("%owner%", claimTo.getOwnerName()).replace("%name%", player.getName());
         }
 
-        GPFlags.sendMessage(player, TextMode.Info, prefix + message);
+        Util.sendClaimMessage(player, TextMode.Info, prefix + message);
         return true;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        Flag flag = this.GetFlagInstanceAtLocation(player.getLocation(), player);
+        Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
         if (flag == null) return;
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
         String message = flag.parameters;
         message = message.replace("%owner%", claim.getOwnerName()).replace("%name%", player.getName());
-        GPFlags.sendMessage(player, TextMode.Info, prefix + message);
+        Util.sendClaimMessage(player, TextMode.Info, prefix + message);
     }
 
     @Override
@@ -71,7 +72,7 @@ public class FlagDef_EnterMessage extends PlayerMovementFlagDefinition {
     }
 
     @Override
-    public SetFlagResult ValidateParameters(String parameters) {
+    public SetFlagResult validateParameters(String parameters) {
         if (parameters.isEmpty()) {
             return new SetFlagResult(false, new MessageSpecifier(Messages.MessageRequired));
         }

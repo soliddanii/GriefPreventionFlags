@@ -8,6 +8,8 @@ website: https://www.spigotmc.org/resources/griefprevention-flags.55773/
 version: '${project.version}'
 api-version: '1.13'
 commands:
+   gpflags:
+      description: Base command for GriefPreventFlags
    allflags:
       description: Sends a list of all flags and their flag type
       usage: /allflags
@@ -121,3 +123,9 @@ permissions:
     gpflags.bypass.fly:
         description: Makes a player immune to the limitations of the fly flags
         default: op
+    gpflags.bypass.exitcommand:
+        description: Makes a player immune to the exit command flag
+        default: op
+    gpflags.bypass.entercommand:
+      description: Makes a player immune to the enter command flag
+      default: op
