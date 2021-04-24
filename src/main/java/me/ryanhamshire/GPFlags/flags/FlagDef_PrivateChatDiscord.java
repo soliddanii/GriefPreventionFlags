@@ -43,9 +43,10 @@ public class FlagDef_PrivateChatDiscord extends FlagDefinition
         event.setFormat(newDisplayName.trim()+": %2$s");
         
         // Bypass the flag
+        event.setMessage(event.getMessage().trim());
         if(event.getMessage().startsWith("*"))
         {
-            event.setMessage("§r"+event.getMessage().substring(1));
+            event.setMessage(" "+event.getMessage().substring(1));
             return;
         }
         
@@ -71,7 +72,7 @@ public class FlagDef_PrivateChatDiscord extends FlagDefinition
         
     }
     
-    @Subscribe(priority = ListenerPriority.MONITOR)
+    @Subscribe(priority = ListenerPriority.HIGH)
     public void discordMessageReceived(GameChatMessagePreProcessEvent event) {
         // Get the flag from the player location
         Player player = event.getPlayer();
@@ -79,9 +80,9 @@ public class FlagDef_PrivateChatDiscord extends FlagDefinition
         if(flag == null) return;
         
         // Bypass the flag
-        if(event.getMessage().startsWith("§r"))
+        if(event.getMessage().startsWith(" "))
         {
-            event.setMessage(event.getMessage().substring(2));
+            event.setMessage(event.getMessage().substring(1));
             return;
         }
         

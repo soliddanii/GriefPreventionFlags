@@ -70,7 +70,7 @@
         <dependency>
             <groupId>com.discordsrv</groupId>
             <artifactId>discordsrv</artifactId>
-            <version>1.18.5-SNAPSHOT</version>
+            <version>1.22.0</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>

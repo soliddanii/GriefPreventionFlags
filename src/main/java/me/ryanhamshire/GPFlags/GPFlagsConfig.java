@@ -15,7 +15,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.google.common.io.Files;
 
-import github.scarsz.discordsrv.DiscordSRV;
 import me.ryanhamshire.GPFlags.flags.FlagDef_AllowPvP;
 import me.ryanhamshire.GPFlags.flags.FlagDef_ChangeBiome;
 import me.ryanhamshire.GPFlags.flags.FlagDef_CommandBlackList;
@@ -273,9 +272,8 @@ public class GPFlagsConfig {
             }
             
             if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
-                FlagDef_PrivateChatDiscord discordsrvListener = new FlagDef_PrivateChatDiscord(this.flagManager, plugin);
-                this.flagManager.registerFlagDefinition(discordsrvListener);
-                DiscordSRV.api.subscribe(discordsrvListener);
+                plugin.setDSRVListener(new FlagDef_PrivateChatDiscord(this.flagManager, plugin));
+                this.flagManager.registerFlagDefinition(plugin.getDSRVListener());
             } else {
                 this.flagManager.registerFlagDefinition(new FlagDef_PrivateChat(this.flagManager, plugin));
             } 

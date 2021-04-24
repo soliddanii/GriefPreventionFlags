@@ -13,6 +13,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import github.scarsz.discordsrv.DiscordSRV;
+import me.ryanhamshire.GPFlags.flags.FlagDef_PrivateChatDiscord;
 import me.ryanhamshire.GPFlags.flags.FlagDef_ViewContainers;
 import me.ryanhamshire.GPFlags.listener.PlayerListener;
 import me.ryanhamshire.GPFlags.metrics.Metrics;
@@ -32,6 +34,8 @@ public class GPFlags extends JavaPlugin {
 
     boolean registeredFlagDefinitions = false;
     private PlayerListener playerListener;
+    
+    private FlagDef_PrivateChatDiscord dsrvListener = null;
 
     public void onEnable() {
         long start = System.currentTimeMillis();
@@ -58,6 +62,11 @@ public class GPFlags extends JavaPlugin {
         new me.ryanhamshire.GPFlags.commands.CommandHandler(this);
 
         new Metrics(this);
+        
+        // Subscribe discord srv flag listener
+        if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
+            DiscordSRV.api.subscribe(this.dsrvListener);
+        }
 
         float finish = (float) (System.currentTimeMillis() - start) / 1000;
         Util.log("Successfully loaded in &b%.2f seconds", finish);
@@ -78,6 +87,12 @@ public class GPFlags extends JavaPlugin {
         instance = null;
         playerListener = null;
         oldCommandHandler = null;
+        
+        // Unsuscribe discord srv flag listener
+        if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV") && this.dsrvListener != null) {
+            DiscordSRV.api.unsubscribe(this.dsrvListener);
+            this.dsrvListener = null;
+        }
     }
 
     /**
@@ -201,6 +216,22 @@ public class GPFlags extends JavaPlugin {
      */
     public PlayerListener getPlayerListener() {
         return this.playerListener;
+    }
+    
+    /**
+     * Get an instance of the discordsrv listener class
+     *
+     * @return Instance of the discordsrv listener class
+     */
+    public FlagDef_PrivateChatDiscord getDSRVListener() {
+        return this.dsrvListener;
+    }
+    
+    /**
+     * Set the instance of the discordsrv listener class
+     */
+    public void setDSRVListener(FlagDef_PrivateChatDiscord flagDef) {
+        this.dsrvListener = flagDef;
     }
 
 }
