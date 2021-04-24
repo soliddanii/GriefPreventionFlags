@@ -24,7 +24,7 @@ import me.ryanhamshire.GriefPrevention.PlayerData;
 
 /**
  *
- * @author Daniel Catalán (soliddanii)
+ * @author soliddanii
  */
 public class FlagDef_PrivateChatDiscord extends FlagDefinition
 {
@@ -34,7 +34,7 @@ public class FlagDef_PrivateChatDiscord extends FlagDefinition
     {
         // Get the flag from the player location
         Player player = event.getPlayer();
-        Flag flag = this.GetFlagInstanceAtLocation(player.getLocation(), player);
+        Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
         if(flag == null) return;
         
         // Indicate that the message is private
@@ -49,7 +49,7 @@ public class FlagDef_PrivateChatDiscord extends FlagDefinition
             return;
         }
         
-        // Borrar todos los jugadores receptores del mensaje
+        // Delete all players from the message recipents
         event.getRecipients().clear();
         
         // Get the claim data
@@ -60,7 +60,7 @@ public class FlagDef_PrivateChatDiscord extends FlagDefinition
         {
             for (Player recipient : Bukkit.getServer().getOnlinePlayers()) 
             {
-                // Si el receptor esta en la misma claim o tiene permisos para escuchar en claims privadas lo añadimos a la lista de receptores:
+                // If the receiver is in the same claim or has permission to listen in other private claims add him to the recipients:
                 Claim temp = GriefPrevention.instance.dataStore.getClaimAt(recipient.getLocation(), true, GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId()).lastClaim);
                 if ((temp != null && temp.getID().equals(claim.getID())) || recipient.hasPermission("gpflags.bypass")) 
                 {
@@ -73,10 +73,9 @@ public class FlagDef_PrivateChatDiscord extends FlagDefinition
     
     @Subscribe(priority = ListenerPriority.MONITOR)
     public void discordMessageReceived(GameChatMessagePreProcessEvent event) {
-        
         // Get the flag from the player location
         Player player = event.getPlayer();
-        Flag flag = this.GetFlagInstanceAtLocation(player.getLocation(), player);
+        Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
         if(flag == null) return;
         
         // Bypass the flag

@@ -96,9 +96,6 @@ public class GPFlagsConfig {
     private final GPFlags plugin;
     private final FlagManager flagManager;
     
-    //this handles discordsrv private chat flag
-    private FlagDef_PrivateChatDiscord discordsrvListener = null;
-
     public static boolean LOG_ENTER_EXIT_COMMANDS = true;
 
     public GPFlagsConfig(GPFlags plugin) {
@@ -276,9 +273,9 @@ public class GPFlagsConfig {
             }
             
             if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
-                this.discordsrvListener = new FlagDef_PrivateChatDiscord(this.flagManager, plugin);
-                this.flagManager.registerFlagDefinition(this.discordsrvListener);
-                DiscordSRV.api.subscribe(this.discordsrvListener);
+                FlagDef_PrivateChatDiscord discordsrvListener = new FlagDef_PrivateChatDiscord(this.flagManager, plugin);
+                this.flagManager.registerFlagDefinition(discordsrvListener);
+                DiscordSRV.api.subscribe(discordsrvListener);
             } else {
                 this.flagManager.registerFlagDefinition(new FlagDef_PrivateChat(this.flagManager, plugin));
             } 
