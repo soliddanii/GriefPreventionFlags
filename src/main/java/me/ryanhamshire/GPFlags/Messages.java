@@ -161,6 +161,8 @@ public enum Messages {
     NoOwnerFlag,
     EnablePrivateChat,
     DisablePrivateChat,
+    EnableTradeRequiresTrust,
+    DisableTradeRequiresTrust,
     EnableNoElytra,
     DisableNoElytra,
     EnableViewContainers,

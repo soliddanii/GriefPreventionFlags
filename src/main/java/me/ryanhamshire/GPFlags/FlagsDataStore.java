@@ -191,6 +191,9 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.EnablePrivateChat, "Now preventing players outside the claim from hearing your conversations.", null);
         this.addDefault(defaults, Messages.DisablePrivateChat, "Your conversations inside this claim can now be heard anywhere.", null);
 
+        this.addDefault(defaults, Messages.EnableTradeRequiresTrust, "Now preventing players without trust permission from trading with the villagers in this claim.", null);
+        this.addDefault(defaults, Messages.DisableTradeRequiresTrust, "Anyone can trade with the villagers in this claim now.", null);
+
         this.addDefault(defaults, Messages.EnableNoChorusFruit, "Now blocking chorus fruit teleportation in this area.", null);
         this.addDefault(defaults, Messages.DisableNoChorusFruit, "Stopped blocking chorus fruit teleportation in this area.", null);
 

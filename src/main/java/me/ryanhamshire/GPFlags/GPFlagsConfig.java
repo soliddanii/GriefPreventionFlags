@@ -84,6 +84,7 @@ import me.ryanhamshire.GPFlags.flags.FlagDef_RaidMemberOnly;
 import me.ryanhamshire.GPFlags.flags.FlagDef_ReadLecterns;
 import me.ryanhamshire.GPFlags.flags.FlagDef_RespawnLocation;
 import me.ryanhamshire.GPFlags.flags.FlagDef_SpleefArena;
+import me.ryanhamshire.GPFlags.flags.FlagDef_TradeRequiresTrust;
 import me.ryanhamshire.GPFlags.flags.FlagDef_TrappedDestination;
 import me.ryanhamshire.GPFlags.flags.FlagDef_ViewContainers;
 import me.ryanhamshire.GPFlags.util.Util;
@@ -248,6 +249,8 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_ViewContainers(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_ReadLecterns(this.flagManager, plugin));
 
+            this.flagManager.registerFlagDefinition(new FlagDef_TradeRequiresTrust(this.flagManager, plugin));
+            
             try {
                 Class.forName("org.bukkit.event.raid.RaidTriggerEvent");
                 this.flagManager.registerFlagDefinition(new FlagDef_RaidMemberOnly(this.flagManager, plugin));
