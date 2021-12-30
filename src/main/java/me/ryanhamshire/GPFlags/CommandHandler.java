@@ -203,7 +203,7 @@ public class CommandHandler {
             }
             PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
             Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, playerData.lastClaim);
-            if (claim == null || claim.allowEdit(player) != null) {
+            if (claim == null || !Util.canBuild(claim, player)) {
                 Util.sendMessage(sender, "&cThis player is not standing in a claim they own");
                 return false;
             }
@@ -245,7 +245,7 @@ public class CommandHandler {
             }
             PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
             Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, playerData.lastClaim);
-            if (claim == null || claim.allowEdit(player) != null) {
+            if (claim == null || !Util.canBuild(claim, player)) {
                 Util.sendMessage(sender, "&cThis player is not standing in a claim they own");
                 return false;
             }
@@ -448,7 +448,7 @@ public class CommandHandler {
                 return true;
             }
 
-            if (claim.allowEdit(player) != null) {
+            if (!Util.canBuild(claim, player)) {
                 Util.sendMessage(player, TextMode.Err, Messages.NotYourClaim);
                 return true;
             }
@@ -487,7 +487,6 @@ public class CommandHandler {
             // Permissions for mob type
             if (flagName.equalsIgnoreCase("NoMobSpawnsType")) {
                 if (!player.hasPermission("gpflags.nomobspawnstype.*") && !player.hasPermission("gpflags.admin.*")) {
-                    if (params == null) return false;
                     for (String type : params[0].split(";")) {
                         if (!player.hasPermission("gpflags.nomobspawnstype." + type)) {
                             Util.sendMessage(player, TextMode.Err, Messages.MobTypePerm, type);
@@ -556,7 +555,7 @@ public class CommandHandler {
                 return true;
             }
 
-            if (claim.allowEdit(player) != null) {
+            if (!Util.canBuild(claim, player)) {
                 Util.sendMessage(player, TextMode.Err, Messages.NotYourClaim);
                 return true;
             }

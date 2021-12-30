@@ -34,7 +34,7 @@ public class FlagDef_EnterCommand_Members extends PlayerMovementFlagDefinition {
 
         PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
         Claim claim = GriefPrevention.instance.dataStore.getClaim(playerData.lastClaim.getID());
-        if (claim.allowAccess(player) == null) return true;
+        if (!Util.canAccess(claim, player)) return true;
         String[] commandLines = flag.parameters.replace("%name%", player.getName()).replace("%uuid%", player.getUniqueId().toString()).split(";");
         for (String commandLine : commandLines) {
             Util.logFlagCommands("Entrance command: " + commandLine);
@@ -47,11 +47,11 @@ public class FlagDef_EnterCommand_Members extends PlayerMovementFlagDefinition {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        Flag flag = this.GetFlagInstanceAtLocation(player.getLocation(), player);
+        Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
         if (flag == null) return;
         PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
         Claim claim = GriefPrevention.instance.dataStore.getClaim(playerData.lastClaim.getID());
-        if (claim.allowAccess(player) == null) return;
+        if (!Util.canAccess(claim, player)) return;
         String[] commandLines = flag.parameters.replace("%name%", player.getName()).replace("%uuid%", player.getUniqueId().toString()).split(";");
 
         for (String commandLine : commandLines) {

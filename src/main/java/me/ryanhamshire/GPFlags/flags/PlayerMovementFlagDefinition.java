@@ -35,12 +35,21 @@ public abstract class PlayerMovementFlagDefinition extends FlagDefinition {
     @EventHandler
     public void onMove(PlayerClaimBorderEvent event) {
         Player player = event.getPlayer();
-        Location lastLocation = event.getLocFrom();
-        if (!this.allowMovement(player, lastLocation, event.getLocTo())) {
+        Location lastLocation = event.getLocFrom().clone();
+        int fromMaxHeight = lastLocation.getWorld().getMaxHeight();
+        if (lastLocation.getY() > fromMaxHeight) {
+            lastLocation.setY(fromMaxHeight);
+        }
+        Location to = event.getLocTo().clone();
+        int toMaxHeight = to.getWorld().getMaxHeight();
+        if (to.getY() > toMaxHeight) {
+            to.setY(toMaxHeight);
+        }
+        if (!this.allowMovement(player, lastLocation, to)) {
             //this.undoMovement(player, lastLocation);
             event.setCancelled(true);
         }
-        if (!this.allowMovement(player, lastLocation, event.getLocTo(), event.getClaimFrom(), event.getClaimTo())) {
+        if (!this.allowMovement(player, lastLocation, to, event.getClaimFrom(), event.getClaimTo())) {
             event.setCancelled(true);
         }
     }

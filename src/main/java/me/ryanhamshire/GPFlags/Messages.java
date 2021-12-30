@@ -59,6 +59,7 @@ public enum Messages {
     DisableNoPlayerDamageByMonster,
     EnabledNoEnter,
     DisabledNoEnter,
+    NoEnterMessage,
     DisableMobDamage,
     EnableMobDamage,
     EnableNoFluidFlow,
@@ -198,5 +199,7 @@ public enum Messages {
     RaidMemberOnlyDeny,
 
     EnabledProtectNamedMobs,
-    DisabledProtectNamedMobs
+    DisabledProtectNamedMobs,
+
+    Prefix
 }

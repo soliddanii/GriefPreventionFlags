@@ -5,14 +5,16 @@ import me.ryanhamshire.GPFlags.FlagManager;
 import me.ryanhamshire.GPFlags.GPFlags;
 import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
-import me.ryanhamshire.GPFlags.SetFlagResult;
 import me.ryanhamshire.GPFlags.TextMode;
 import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 public class FlagDef_NoEnter extends PlayerMovementFlagDefinition {
 
@@ -31,26 +33,29 @@ public class FlagDef_NoEnter extends PlayerMovementFlagDefinition {
 
         PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(to, false, playerData.lastClaim);
-        if (claim.allowAccess(player) != null) {
-            Util.sendClaimMessage(player, TextMode.Err, flag.parameters);
+        if (!Util.canAccess(claim, player)) {
+            Util.sendClaimMessage(player, TextMode.Err, Messages.NoEnterMessage);
             return false;
         }
 
         return true;
     }
 
-    @Override
-    public String getName() {
-        return "NoEnter";
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        Player player = e.getPlayer();
+        Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
+        if (flag == null) return;
+        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, playerData.lastClaim);
+        if (Util.canAccess(claim, player)) return;
+        Util.sendClaimMessage(player, TextMode.Err, Messages.NoEnterMessage);
+        GriefPrevention.instance.ejectPlayer(player);
     }
 
     @Override
-    public SetFlagResult validateParameters(String parameters) {
-        if (parameters.isEmpty()) {
-            return new SetFlagResult(false, new MessageSpecifier(Messages.MessageRequired));
-        }
-
-        return new SetFlagResult(true, this.getSetMessage(parameters));
+    public String getName() {
+        return "NoEnter";
     }
 
     @Override

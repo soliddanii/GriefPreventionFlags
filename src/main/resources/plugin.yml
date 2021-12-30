@@ -2,14 +2,14 @@ name: GriefPreventionFlags
 main: me.ryanhamshire.GPFlags.GPFlags
 depend: [GriefPrevention]
 softdepend: [mcMMO, DiscordSRV]
-authors: [Big_Scary, ShaneBee, DmitryRendov, soliddanii]
+authors: [Big_Scary, ShaneBee, DmitryRendov, DrBot, soliddanii]
 description: GriefPrevention Add-On to set flags in claims.
 website: https://www.spigotmc.org/resources/griefprevention-flags.55773/
 version: '${project.version}'
 api-version: '1.13'
 commands:
    gpflags:
-      description: Base command for GriefPreventFlags
+      description: Base command for GriefPreventionFlags
    allflags:
       description: Sends a list of all flags and their flag type
       usage: /allflags

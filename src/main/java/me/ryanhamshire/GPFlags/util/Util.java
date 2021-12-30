@@ -5,6 +5,8 @@ import me.ryanhamshire.GPFlags.GPFlagsConfig;
 import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
 import me.ryanhamshire.GPFlags.TextMode;
+import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -31,11 +33,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.bukkit.ChatColor.COLOR_CHAR;
+
 @SuppressWarnings("WeakerAccess")
 public class Util {
-
-    private static final String PREFIX = "&7[&bGP&3Flags&7] &r";
-    private static final Pattern HEX_PATTERN = Pattern.compile("<#([A-Fa-f0-9]){6}>");
 
     /**
      * Check if server is running a minimum Minecraft version
@@ -78,6 +79,14 @@ public class Util {
         return Bukkit.getBukkitVersion().split("-")[0];
     }
 
+    /**
+     * Get the prefix stored in messages.yml
+     *
+     * @return prefix stored in messages.yml
+     */
+    private static String getPrefix() {
+        return getColString(GPFlags.getInstance().getFlagsDataStore().getMessage(Messages.Prefix));
+    }
 
     /**
      * Disable the flight mode of a player whom cant fly
@@ -198,13 +207,26 @@ public class Util {
      */
     public static String getColString(String string) {
         if (isRunningMinecraft(1, 16)) {
-            Matcher matcher = HEX_PATTERN.matcher(string);
+            string = string.replace(COLOR_CHAR, '&');
+
+            Pattern hexPattern = Pattern.compile("&#([A-Fa-f0-9]{6})");
+            Matcher matcher = hexPattern.matcher(string);
             while (matcher.find()) {
-                final ChatColor hexColor = ChatColor.of(matcher.group().substring(1, matcher.group().length() - 1));
+                final String before = string.substring(0, matcher.start());
+                final String after = string.substring(matcher.end());
+                ChatColor hexColor = ChatColor.of(matcher.group().substring(1));
+                string = before + hexColor + after;
+                matcher = hexPattern.matcher(string);
+            }
+
+            Pattern hexPattern2 = Pattern.compile("<#([A-Fa-f0-9]){6}>");
+            matcher = hexPattern2.matcher(string);
+            while (matcher.find()) {
+                ChatColor hexColor = ChatColor.of(matcher.group().substring(1, matcher.group().length() - 1));
                 final String before = string.substring(0, matcher.start());
                 final String after = string.substring(matcher.end());
                 string = before + hexColor + after;
-                matcher = HEX_PATTERN.matcher(string);
+                matcher = hexPattern2.matcher(string);
             }
         }
         return ChatColor.translateAlternateColorCodes('&', string);
@@ -244,7 +266,7 @@ public class Util {
 
     public static void sendMessage(@Nullable CommandSender receiver, String message) {
         if (receiver != null) {
-            receiver.sendMessage(getColString(PREFIX + message));
+            receiver.sendMessage(getColString(getPrefix() + message));
         } else {
             log(message);
         }
@@ -276,7 +298,7 @@ public class Util {
     }
 
     public static void log(String message) {
-        Bukkit.getConsoleSender().sendMessage(getColString(PREFIX + message));
+        Bukkit.getConsoleSender().sendMessage(getColString(getPrefix() + message));
     }
 
     public static void log(String format, Object... objects) {
@@ -286,6 +308,22 @@ public class Util {
     public static void logFlagCommands(String log) {
         if (GPFlagsConfig.LOG_ENTER_EXIT_COMMANDS) {
             Util.log(log);
+        }
+    }
+
+    public static boolean canBuild(Claim claim, Player player) {
+        try {
+            return claim.checkPermission(player, ClaimPermission.Edit, null) == null;
+        } catch (NoSuchFieldError e) {
+            return claim.allowEdit(player) == null;
+        }
+    }
+
+    public static boolean canAccess(Claim claim, Player player) {
+        try {
+            return claim.checkPermission(player, ClaimPermission.Access, null) == null;
+        } catch (NoSuchMethodError e) {
+            return claim.allowAccess(player) == null;
         }
     }
 

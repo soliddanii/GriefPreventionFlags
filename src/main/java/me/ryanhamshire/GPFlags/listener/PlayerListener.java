@@ -59,9 +59,8 @@ public class PlayerListener implements Listener {
         this.fallingPlayers.put(player, true);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     private void onMove(PlayerMoveEvent event) {
-        if (event.isCancelled()) return;
         if (event.getTo() == null) return;
         Location locTo = event.getTo();
         Location locFrom = event.getFrom();
@@ -69,9 +68,8 @@ public class PlayerListener implements Listener {
         processMovement(locTo, locFrom, player, event);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void onTeleport(PlayerTeleportEvent event) {
-        if (event.isCancelled()) return;
         if (event.getTo() == null) return;
         Location locTo = event.getTo();
         Location locFrom = event.getFrom();
@@ -115,10 +113,18 @@ public class PlayerListener implements Listener {
     private boolean processMovement(Location locTo, Location locFrom, Player player, Cancellable event) {
         if (locTo.getBlockX() == locFrom.getBlockX() && locTo.getBlockY() == locFrom.getBlockY() && locTo.getBlockZ() == locFrom.getBlockZ())
             return true;
-
-        Claim claimTo = dataStore.getClaimAt(locTo, false, null);
-        Claim claimFrom = dataStore.getClaimAt(locFrom, false, null);
-        if (claimTo == null && claimFrom == null) return true;
+        Location locFrom2 = locFrom.clone();
+        int maxWorldHeightFrom = locFrom2.getWorld().getMaxHeight();
+        if (locFrom2.getY() > maxWorldHeightFrom) {
+            locFrom2.setY(maxWorldHeightFrom);
+        }
+        Location locTo2 = locTo.clone();
+        int maxWorldHeightTo = locTo2.getWorld().getMaxHeight();
+        if (locTo2.getY() > maxWorldHeightTo) {
+            locTo2.setY(maxWorldHeightTo);
+        }
+        Claim claimTo = dataStore.getClaimAt(locTo2, false, null);
+        Claim claimFrom = dataStore.getClaimAt(locFrom2, false, null);
         if (claimTo == claimFrom) return true;
         PlayerClaimBorderEvent playerClaimBorderEvent = new PlayerClaimBorderEvent(player, claimFrom, claimTo, locFrom, locTo);
         Bukkit.getPluginManager().callEvent(playerClaimBorderEvent);
@@ -148,14 +154,21 @@ public class PlayerListener implements Listener {
     @EventHandler
     // Call the claim border event when a player resizes a claim and they are now outside of the claim
     private void onChangeClaim(ClaimModifiedEvent event) {
-        Claim claim = event.getClaim();
+        Claim claimTo = event.getTo();
+        Claim claimFrom = event.getFrom();
         CommandSender modifier = event.getModifier();
         if (modifier instanceof Player) {
             Player player = ((Player) modifier);
             Location loc = player.getLocation();
-            Claim claimAtLoc = GriefPrevention.instance.dataStore.getClaimAt(loc, false, null);
-            if (claimAtLoc == null) {
-                PlayerClaimBorderEvent borderEvent = new PlayerClaimBorderEvent(player, claim, null, claim.getLesserBoundaryCorner(), loc);
+
+            // Resizing a claim to be smaller and falling on the outside
+            if (!claimTo.contains(loc, false, false) && claimFrom.contains(loc, false, false)) {
+                PlayerClaimBorderEvent borderEvent = new PlayerClaimBorderEvent(player, claimFrom, null, claimFrom.getLesserBoundaryCorner(), loc);
+                Bukkit.getPluginManager().callEvent(borderEvent);
+            }
+            // Resizing a claim to be larger and falling on the inside
+            if (claimTo.contains(loc, false, false) && !claimFrom.contains(loc, false, false)) {
+                PlayerClaimBorderEvent borderEvent = new PlayerClaimBorderEvent(player, null, claimTo, claimTo.getLesserBoundaryCorner(), loc);
                 Bukkit.getPluginManager().callEvent(borderEvent);
             }
         }

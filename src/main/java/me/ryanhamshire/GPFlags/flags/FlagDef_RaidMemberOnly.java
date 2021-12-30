@@ -25,12 +25,12 @@ public class FlagDef_RaidMemberOnly extends FlagDefinition {
 
     @EventHandler
     private void onRaidTrigger(RaidTriggerEvent event) {
-        Flag flag = this.GetFlagInstanceAtLocation(event.getPlayer().getLocation(), null);
+        Flag flag = this.getFlagInstanceAtLocation(event.getPlayer().getLocation(), null);
         if (flag == null) return;
         Player player = event.getPlayer();
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
         if (claim == null) return;
-        if (claim.allowAccess(player) != null) {
+        if (!Util.canAccess(claim, player)) {
             event.setCancelled(true);
             player.removePotionEffect(PotionEffectType.BAD_OMEN);
             Util.sendClaimMessage(player, TextMode.Warn, Messages.RaidMemberOnlyDeny);

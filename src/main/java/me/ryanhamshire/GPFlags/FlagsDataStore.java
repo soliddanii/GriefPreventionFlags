@@ -78,10 +78,10 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.CommandRequired, "Please specify a command line to execute.", null);
         this.addDefault(defaults, Messages.ConsoleCommandRequired, "Please specify a command line(s) to execute.  You may find the %owner%, %name% and %uuid% placeholders useful.  Separate multiple command lines with a semicolon (;).", null);
         this.addDefault(defaults, Messages.PlayerCommandRequired, "Please specify a player command line(s) to execute.  You may find the %owner%, %name% and %uuid% placeholders useful.  Separate multiple command lines with a semicolon (;).\"", null);
-        this.addDefault(defaults, Messages.AddedEnterMessage, "Players entering this land claim will now receive this message: {0}", "0: message to send");
+        this.addDefault(defaults, Messages.AddedEnterMessage, "Players entering this land claim will now receive this message:&b {0}", "0: message to send");
         this.addDefault(defaults, Messages.RemovedEnterMessage, "Players entering this land claim will not receive any message.", null);
 
-        this.addDefault(defaults, Messages.AddedExitMessage, "Players exiting this land claim will now receive this message: {0}", "0: message to send");
+        this.addDefault(defaults, Messages.AddedExitMessage, "Players exiting this land claim will now receive this message:&b {0}", "0: message to send");
         this.addDefault(defaults, Messages.RemovedExitMessage, "Players exiting this land claim will not receive any message.", null);
         this.addDefault(defaults, Messages.EnterExitPrefix, "", "This prefix will be added to all enter/exit message flags");
 
@@ -123,6 +123,7 @@ public class FlagsDataStore {
 
         this.addDefault(defaults, Messages.EnabledNoEnter, "Players now require /AccessTrust or higher permission to enter this area.  Players with permission gpflags.bypass are immune to this flag.", null);
         this.addDefault(defaults, Messages.DisabledNoEnter, "Stopped requiring permission to enter this area.", null);
+        this.addDefault(defaults, Messages.NoEnterMessage, "You have been blocked from entering this claim", null);
 
         this.addDefault(defaults, Messages.EnableNoFluidFlow, "Now preventing source fluid blocks from spreading in this land claim.", null);
         this.addDefault(defaults, Messages.DisableNoFluidFlow, "Stopped limiting fluid flow in this land claim.", null);
@@ -254,8 +255,8 @@ public class FlagsDataStore {
 
         this.addDefault(defaults, Messages.NoOwnerFlag, "You cannot set both OwnerFly and OwnerMemberFly flags in one claim", null);
 
-        this.addDefault(defaults, Messages.ChangeBiomeSet, "The biome in this claim has been set to {0}", "0: Biome");
-        this.addDefault(defaults, Messages.ChangeBiomeUnset, "The biome in this claim has been restored", null);
+        this.addDefault(defaults, Messages.ChangeBiomeSet, "The biome in this claim has been set to {0}. Relog to see the changes.", "0: Biome");
+        this.addDefault(defaults, Messages.ChangeBiomeUnset, "The biome in this claim has been restored. Relog to see the changes.", null);
 
         this.addDefault(defaults, Messages.NoFlagInClaim, "This flag cannot be set in a claim", null);
         this.addDefault(defaults, Messages.NoFlagInWorld, "This flag cannot be set for a whole world", null);
@@ -294,7 +295,9 @@ public class FlagsDataStore {
         
         this.addDefault(defaults, Messages.EnableReadLecterns, "Players can now read (not manipulate) lecturns on your claim", null);
         this.addDefault(defaults, Messages.DisableReadLecterns, "Players can no longer read lecturns on your claim", null);
-        
+
+        this.addDefault(defaults, Messages.Prefix, "&7[&bGP&3Flags&7] &r", null);
+
         //load the config file
         FileConfiguration config = YamlConfiguration.loadConfiguration(new File(messagesFilePath));
 

@@ -13,6 +13,8 @@ import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 public class FlagDef_NoEnterPlayer extends PlayerMovementFlagDefinition {
 
@@ -31,11 +33,23 @@ public class FlagDef_NoEnterPlayer extends PlayerMovementFlagDefinition {
 
         PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(to, false, playerData.lastClaim);
-        if (flag.parameters.toUpperCase().contains(player.getName().toUpperCase()) && claim.allowAccess(player) != null) {
+        if (flag.parameters.toUpperCase().contains(player.getName().toUpperCase()) && !Util.canAccess(claim, player)) {
             Util.sendClaimMessage(player, TextMode.Err, Messages.NoEnterPlayerMessage);
             return false;
         }
         return true;
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        Player player = e.getPlayer();
+        Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
+        if (flag == null) return;
+        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, playerData.lastClaim);
+        if (Util.canAccess(claim, player)) return;
+        Util.sendClaimMessage(player, TextMode.Err, Messages.NoEnterPlayerMessage);
+        GriefPrevention.instance.ejectPlayer(player);
     }
 
     @Override

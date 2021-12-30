@@ -58,7 +58,7 @@ public class UnsetClaimFlagCmd extends BaseCmd {
             return true;
         }
 
-        if (claim.allowEdit(player) != null) {
+        if (!Util.canBuild(claim, player)) {
             Util.sendMessage(player, TextMode.Err, Messages.NotYourClaim);
             return true;
         }

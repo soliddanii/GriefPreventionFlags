@@ -6,7 +6,7 @@
 
     <groupId>tk.shanebee</groupId>
     <artifactId>GriefPreventionFlags</artifactId>
-    <version>5.10.0</version>
+    <version>5.11.3-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -38,13 +38,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.16.4-R0.1-SNAPSHOT</version>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.TechFortress</groupId>
+            <groupId>com.griefprevention</groupId>
             <artifactId>GriefPrevention</artifactId>
-            <version>16.15.0</version>
+            <version>16.17.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
