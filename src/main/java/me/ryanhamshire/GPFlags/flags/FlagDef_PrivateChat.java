@@ -21,7 +21,7 @@ import me.ryanhamshire.GriefPrevention.PlayerData;
 
 /**
  *
- * @author Daniel Catalán (soliddanii)
+ * @author soliddanii
  */
 public class FlagDef_PrivateChat extends FlagDefinition
 {
@@ -31,7 +31,7 @@ public class FlagDef_PrivateChat extends FlagDefinition
     {
         // Get the flag from the player location
         Player player = event.getPlayer();
-        Flag flag = this.GetFlagInstanceAtLocation(player.getLocation(), player);
+        Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
         if(flag == null) return;
         
         // Indicate that the message is private
