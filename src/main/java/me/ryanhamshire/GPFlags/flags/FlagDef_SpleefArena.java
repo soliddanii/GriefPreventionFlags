@@ -6,6 +6,7 @@ import me.ryanhamshire.GPFlags.GPFlags;
 import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
 import me.ryanhamshire.GPFlags.SetFlagResult;
+import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
@@ -40,7 +41,7 @@ public class FlagDef_SpleefArena extends FlagDefinition {
 
         SpleefData data = new SpleefData(flag.getParametersArray());
         PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
-        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, playerData.lastClaim);
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, false, playerData.lastClaim);
         if (claim == null) return;
 
         ArrayList<Chunk> chunks = claim.getChunks();
@@ -48,7 +49,7 @@ public class FlagDef_SpleefArena extends FlagDefinition {
             for (int x = 0; x < 16; x++) {
                 for (int z = 0; z < 16; z++) {
                     for (int y = 0; y < location.getWorld().getMaxHeight() - data.differenceY; y++) {
-                        if (claim.contains(location, true, false)) {
+                        if (claim.contains(Util.getInBoundsLocation(player), false, false)) {
                             Block block = chunk.getBlock(x, y, z);
                             if (data.IsSupport(block)) {
                                 chunk.getBlock(x, y + data.differenceY, z).setType(data.blockMat);

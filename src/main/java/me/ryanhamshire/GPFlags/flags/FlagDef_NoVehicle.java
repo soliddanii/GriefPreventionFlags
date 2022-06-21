@@ -10,6 +10,7 @@ import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
@@ -27,10 +28,23 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Collections;
 import java.util.List;
 
-public class FlagDef_NoVehicle extends FlagDefinition {
+public class FlagDef_NoVehicle extends PlayerMovementFlagDefinition {
 
     public FlagDef_NoVehicle(FlagManager manager, GPFlags plugin) {
         super(manager, plugin);
+    }
+
+    public boolean allowMovement(Player player, Location from, Location to, Claim claimFrom, Claim claimTo) {
+        if (player.hasPermission("gpflags.bypass.novehicle")) return true;
+        if (player.getVehicle() == null) return true;
+
+        Flag flag = this.getFlagInstanceAtLocation(to, player);
+        if (flag == null) return true;
+        if (claimTo.getOwnerID().equals(player.getUniqueId())) return true;
+        if (claimTo.hasExplicitPermission(player, ClaimPermission.Inventory)) return true;
+
+        Util.sendMessage(player, TextMode.Err, Messages.NoVehicleAllowed);
+        return false;
     }
 
     @EventHandler
@@ -47,17 +61,16 @@ public class FlagDef_NoVehicle extends FlagDefinition {
     @EventHandler(priority = EventPriority.LOWEST)
     private void onTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
-        Entity vehicle = player.getVehicle();
-        if (vehicle instanceof Vehicle) {
-            handleVehicleMovement(player, (Vehicle) vehicle, event.getFrom(), event.getTo(), true);
-        }
+        Entity entity = player.getVehicle();
+        if (!(entity instanceof Vehicle)) return;
+        handleVehicleMovement(player, (Vehicle) entity, event.getFrom(), event.getTo(), true);
     }
 
     private void handleVehicleMovement(Player player, Vehicle vehicle, Location locFrom, Location locTo, boolean isTeleportEvent) {
         Flag flag = this.getFlagInstanceAtLocation(locTo, player);
         if (flag != null) {
             Claim claim = GriefPrevention.instance.dataStore.getClaimAt(locTo, false, null);
-            if (claim.getOwnerName().equals(player.getName())) return;
+            if (claim.getOwnerID().equals(player.getUniqueId())) return;
             if (claim.hasExplicitPermission(player, ClaimPermission.Inventory)) return;
             if (isTeleportEvent) {
                 player.leaveVehicle();
@@ -86,7 +99,7 @@ public class FlagDef_NoVehicle extends FlagDefinition {
             Flag flag = this.getFlagInstanceAtLocation(vehicle.getLocation(), player);
             if (flag != null) {
                 Claim claim = GriefPrevention.instance.dataStore.getClaimAt(vehicle.getLocation(), false, null);
-                if (claim != null && !claim.hasExplicitPermission(player, ClaimPermission.Inventory) && !claim.getOwnerName().equals(player.getName())) {
+                if (claim != null && !claim.hasExplicitPermission(player, ClaimPermission.Inventory) && !claim.getOwnerID().equals(player.getUniqueId())) {
                     event.setCancelled(true);
                     Util.sendMessage(player, TextMode.Err, Messages.NoEnterVehicle);
                 }
@@ -104,7 +117,7 @@ public class FlagDef_NoVehicle extends FlagDefinition {
                 Player player = (Player) entity;
                 Claim claim = GriefPrevention.instance.dataStore.getClaimAt(vehicle.getLocation(), false, null);
                 if (claim == null) return;
-                if (claim.getOwnerName().equals(player.getName())) return;
+                if (claim.getOwnerID().equals(player.getUniqueId())) return;
                 if (claim.hasExplicitPermission(player, ClaimPermission.Inventory)) return;
             }
             event.setCollisionCancelled(true);

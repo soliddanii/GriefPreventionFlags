@@ -13,7 +13,6 @@ import me.ryanhamshire.GriefPrevention.events.ClaimModifiedEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
@@ -34,7 +33,7 @@ import java.util.HashMap;
 public class PlayerListener implements Listener {
 
     private final HashMap<Player, Boolean> fallingPlayers = new HashMap<>();
-    private final DataStore dataStore = GriefPrevention.instance.dataStore;
+    private static final DataStore dataStore = GriefPrevention.instance.dataStore;
     private final FlagManager FLAG_MANAGER = GPFlags.getInstance().getFlagManager();
 
     @EventHandler
@@ -61,7 +60,6 @@ public class PlayerListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     private void onMove(PlayerMoveEvent event) {
-        if (event.getTo() == null) return;
         Location locTo = event.getTo();
         Location locFrom = event.getFrom();
         Player player = event.getPlayer();
@@ -70,7 +68,6 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void onTeleport(PlayerTeleportEvent event) {
-        if (event.getTo() == null) return;
         Location locTo = event.getTo();
         Location locFrom = event.getFrom();
         Player player = event.getPlayer();
@@ -110,23 +107,23 @@ public class PlayerListener implements Listener {
         }
     }
 
-    private boolean processMovement(Location locTo, Location locFrom, Player player, Cancellable event) {
+    public static boolean processMovement(Location locTo, Location locFrom, Player player, Cancellable event) {
         if (locTo.getBlockX() == locFrom.getBlockX() && locTo.getBlockY() == locFrom.getBlockY() && locTo.getBlockZ() == locFrom.getBlockZ())
             return true;
         Location locFrom2 = locFrom.clone();
         int maxWorldHeightFrom = locFrom2.getWorld().getMaxHeight();
-        if (locFrom2.getY() > maxWorldHeightFrom) {
-            locFrom2.setY(maxWorldHeightFrom);
+        if (locFrom2.getY() >= maxWorldHeightFrom) {
+            locFrom2.setY(maxWorldHeightFrom - 1);
         }
         Location locTo2 = locTo.clone();
         int maxWorldHeightTo = locTo2.getWorld().getMaxHeight();
-        if (locTo2.getY() > maxWorldHeightTo) {
-            locTo2.setY(maxWorldHeightTo);
+        if (locTo2.getY() >= maxWorldHeightTo) {
+            locTo2.setY(maxWorldHeightTo - 1);
         }
         Claim claimTo = dataStore.getClaimAt(locTo2, false, null);
         Claim claimFrom = dataStore.getClaimAt(locFrom2, false, null);
         if (claimTo == claimFrom) return true;
-        PlayerClaimBorderEvent playerClaimBorderEvent = new PlayerClaimBorderEvent(player, claimFrom, claimTo, locFrom, locTo);
+        PlayerClaimBorderEvent playerClaimBorderEvent = new PlayerClaimBorderEvent(player, claimFrom, claimTo, locFrom2, locTo2);
         Bukkit.getPluginManager().callEvent(playerClaimBorderEvent);
         if (event != null) {
             event.setCancelled(playerClaimBorderEvent.isCancelled());
@@ -144,7 +141,7 @@ public class PlayerListener implements Listener {
         assert world != null;
         if (flagOwnerFly != null || flagOwnerMemberFly != null) {
             for (Player player : world.getPlayers()) {
-                if (claim.contains(player.getLocation(), false, true)) {
+                if (claim.contains(Util.getInBoundsLocation(player), false, true)) {
                     Util.disableFlight(player);
                 }
             }
@@ -156,10 +153,9 @@ public class PlayerListener implements Listener {
     private void onChangeClaim(ClaimModifiedEvent event) {
         Claim claimTo = event.getTo();
         Claim claimFrom = event.getFrom();
-        CommandSender modifier = event.getModifier();
-        if (modifier instanceof Player) {
-            Player player = ((Player) modifier);
-            Location loc = player.getLocation();
+        World world = claimFrom.getGreaterBoundaryCorner().getWorld();
+        for (Player player : world.getPlayers()) {
+            Location loc = Util.getInBoundsLocation(player);
 
             // Resizing a claim to be smaller and falling on the outside
             if (!claimTo.contains(loc, false, false) && claimFrom.contains(loc, false, false)) {

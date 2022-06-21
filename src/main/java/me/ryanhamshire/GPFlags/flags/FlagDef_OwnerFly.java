@@ -67,16 +67,14 @@ public class FlagDef_OwnerFly extends PlayerMovementFlagDefinition implements Li
                 player.setAllowFlight(false);
                 Util.sendClaimMessage(player, TextMode.Warn, Messages.ExitFlightDisabled);
             }
-            if (!canFly(player)) {
-                player.setAllowFlight(false);
-                Util.sendClaimMessage(player, TextMode.Warn, Messages.ExitFlightDisabled);
-            }
             return true;
         }
 
         Bukkit.getScheduler().runTaskLater(GPFlags.getInstance(), () -> {
+            if (!player.getAllowFlight()) {
+                Util.sendClaimMessage(player, TextMode.Success, Messages.EnterFlightEnabled);
+            }
             player.setAllowFlight(true);
-            Util.sendClaimMessage(player, TextMode.Success, Messages.EnterFlightEnabled);
         }, 1);
         return true;
     }
@@ -84,8 +82,7 @@ public class FlagDef_OwnerFly extends PlayerMovementFlagDefinition implements Li
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean canFly(Player player) {
         GameMode mode = player.getGameMode();
-        return mode == GameMode.SPECTATOR || mode == GameMode.CREATIVE ||
-                player.hasPermission("gpflags.bypass.fly") || player.hasPermission("gpflags.bypass");
+        return mode == GameMode.SPECTATOR || mode == GameMode.CREATIVE || player.hasPermission("gpflags.bypass.fly");
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
