@@ -3,7 +3,6 @@ package me.ryanhamshire.GPFlags;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -15,81 +14,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.google.common.io.Files;
 
-import me.ryanhamshire.GPFlags.flags.FlagDef_AllowPvP;
-import me.ryanhamshire.GPFlags.flags.FlagDef_ChangeBiome;
-import me.ryanhamshire.GPFlags.flags.FlagDef_CommandBlackList;
-import me.ryanhamshire.GPFlags.flags.FlagDef_CommandWhiteList;
-import me.ryanhamshire.GPFlags.flags.FlagDef_EnterCommand;
-import me.ryanhamshire.GPFlags.flags.FlagDef_EnterCommand_Members;
-import me.ryanhamshire.GPFlags.flags.FlagDef_EnterCommand_Owner;
-import me.ryanhamshire.GPFlags.flags.FlagDef_EnterMessage;
-import me.ryanhamshire.GPFlags.flags.FlagDef_EnterPlayerCommand;
-import me.ryanhamshire.GPFlags.flags.FlagDef_ExitCommand;
-import me.ryanhamshire.GPFlags.flags.FlagDef_ExitCommand_Members;
-import me.ryanhamshire.GPFlags.flags.FlagDef_ExitCommand_Owner;
-import me.ryanhamshire.GPFlags.flags.FlagDef_ExitMessage;
-import me.ryanhamshire.GPFlags.flags.FlagDef_ExitPlayerCommand;
-import me.ryanhamshire.GPFlags.flags.FlagDef_HealthRegen;
-import me.ryanhamshire.GPFlags.flags.FlagDef_InfiniteArrows;
-import me.ryanhamshire.GPFlags.flags.FlagDef_KeepInventory;
-import me.ryanhamshire.GPFlags.flags.FlagDef_KeepLevel;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NetherPortalConsoleCommand;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NetherPortalPlayerCommand;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoChorusFruit;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoCombatLoot;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoElytra;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoEnderPearl;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoEnter;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoEnterPlayer;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoExpiration;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoExplosionDamage;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoFallDamage;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoFireDamage;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoFireSpread;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoFlight;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoFluidFlow;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoGrowth;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoHunger;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoIceForm;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoItemDamage;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoItemDrop;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoItemPickup;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoLeafDecay;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoLootProtection;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoMcMMODeathPenalty;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoMcMMOSkills;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoMcMMOXP;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoMobDamage;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoMobSpawns;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoMobSpawnsType;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoMonsterSpawns;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoMonsters;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoOpenDoors;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoPetDamage;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoPlayerDamage;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoPlayerDamageByMonster;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoSnowForm;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoVehicle;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoVineGrowth;
-import me.ryanhamshire.GPFlags.flags.FlagDef_NoWeatherChange;
-import me.ryanhamshire.GPFlags.flags.FlagDef_OwnerFly;
-import me.ryanhamshire.GPFlags.flags.FlagDef_OwnerMemberFly;
-import me.ryanhamshire.GPFlags.flags.FlagDef_PlayerGamemode;
-import me.ryanhamshire.GPFlags.flags.FlagDef_PlayerTime;
-import me.ryanhamshire.GPFlags.flags.FlagDef_PlayerWeather;
-import me.ryanhamshire.GPFlags.flags.FlagDef_PrivateChat;
-import me.ryanhamshire.GPFlags.flags.FlagDef_PrivateChatDiscord;
-import me.ryanhamshire.GPFlags.flags.FlagDef_ProtectNamedMobs;
-import me.ryanhamshire.GPFlags.flags.FlagDef_RaidMemberOnly;
-import me.ryanhamshire.GPFlags.flags.FlagDef_ReadLecterns;
-import me.ryanhamshire.GPFlags.flags.FlagDef_RespawnLocation;
-import me.ryanhamshire.GPFlags.flags.FlagDef_SpleefArena;
-import me.ryanhamshire.GPFlags.flags.FlagDef_TradeRequiresTrust;
-import me.ryanhamshire.GPFlags.flags.FlagDef_TrappedDestination;
-import me.ryanhamshire.GPFlags.flags.FlagDef_ViewContainers;
+import me.ryanhamshire.GPFlags.flags.*;
 import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+
 
 public class GPFlagsConfig {
     
@@ -150,10 +79,6 @@ public class GPFlagsConfig {
 
             settings.pvpExitClaimMessage = inConfig.getString("World Flags." + worldName + ".ExitMessage", "PvP is disabled in this area, you are now safe");
             outConfig.set("World Flags." + worldName + ".ExitMessage", settings.pvpExitClaimMessage);
-
-            // Adds default biomes to be ignored in the ChangeBiome flag
-            settings.biomeBlackList = inConfig.getList("World Flags." + worldName + ".Biomes.Blacklist", Arrays.asList("MUSHROOM_FIELDS", "MUSHROOM_FIELD_SHORE"));
-            outConfig.set("World Flags." + worldName + ".Biomes.Blacklist", settings.biomeBlackList);
 
             settings.noMonsterSpawnIgnoreSpawners = inConfig.getBoolean("World Flags." + worldName + ".NoMonsterSpawn Flag Ignores Spawners and Eggs", true);
             outConfig.set("World Flags." + worldName + ".NoMonsterSpawn Flag Ignores Spawners and Eggs", settings.noMonsterSpawnIgnoreSpawners);
@@ -237,7 +162,7 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_ExitCommand_Members(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoExplosionDamage(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_ProtectNamedMobs(this.flagManager, plugin));
-
+            this.flagManager.registerFlagDefinition(new FlagDef_NoBlockGravity(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_ChangeBiome(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoOpenDoors(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoVehicle(this.flagManager, plugin));

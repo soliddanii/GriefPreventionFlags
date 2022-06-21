@@ -170,6 +170,8 @@ public enum Messages {
     DisableViewContainers,
     EnableReadLecterns,
     DisableReadLecterns,
+    EnableNoBlockGravity,
+    DisableNoBlockGravity,
     
     //EXPERIMENTAL
     ChangeBiomeSet,

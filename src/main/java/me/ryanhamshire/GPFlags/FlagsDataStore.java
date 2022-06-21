@@ -50,7 +50,7 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.FlagsWorld, "This World: {0}", "0:list of active flags in this world");
         this.addDefault(defaults, Messages.FlagsServer, "Entire Server: {0}", "0:list of flags which are active everywhere on the server");
         this.addDefault(defaults, Messages.NoFlagPermission, "You don't have permission to use flag: &b{0}", "0:flag name");
-        this.addDefault(defaults, Messages.DefaultFlagSet, "Set flag for all land claims.  To make exceptions, move to specific land claims and use '/gpflags UnSetClaimFlag'.  Undo with '/gpflags UnSetDefaultClaimFlag'.", null);
+        this.addDefault(defaults, Messages.DefaultFlagSet, "Set flag for all land claims.  To make exceptions, move to specific land claims and use '/UnSetClaimFlag'.  Undo with '/UnSetDefaultClaimFlag'.", null);
         this.addDefault(defaults, Messages.DefaultFlagUnSet, "That flag is no longer set by default in any land claims.", null);
         this.addDefault(defaults, Messages.ServerFlagSet, "Set flag for entire server (all worlds).", null);
         this.addDefault(defaults, Messages.ServerFlagUnSet, "That flag is no longer set at the server level.", null);
@@ -121,7 +121,7 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.EnableNoPlayerDamageByMonster, "Players will not take any damage by monsters in this land claim.", null);
         this.addDefault(defaults, Messages.DisableNoPlayerDamageByMonster, "Stopped preventing player damage by monsters in this land claim.", null);
 
-        this.addDefault(defaults, Messages.EnabledNoEnter, "Players now require /AccessTrust or higher permission to enter this area.  Players with permission gpflags.bypass are immune to this flag.", null);
+        this.addDefault(defaults, Messages.EnabledNoEnter, "Players now require /AccessTrust or higher permission to enter this area.  Players with permission gpflags.bypass.noenter are immune to this flag.", null);
         this.addDefault(defaults, Messages.DisabledNoEnter, "Stopped requiring permission to enter this area.", null);
         this.addDefault(defaults, Messages.NoEnterMessage, "You have been blocked from entering this claim", null);
 
@@ -132,19 +132,19 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.DisableHealthRegen, "Stopped regenerating player health here.", null);
         this.addDefault(defaults, Messages.HealthRegenGreaterThanZero, "Please specify how many health points (minimum: 1) players should regenerate per 5 seconds.", null);
 
-        this.addDefault(defaults, Messages.EnableNoHunger, "Disabled food level loss and hunger damage in this area.  Food level regen per 5 seconds: {0}", "0:regen amount");
-        this.addDefault(defaults, Messages.DisableNoHunger, "Disabled food level regeneration and stopped blocking food level loss in this area.", null);
+        this.addDefault(defaults, Messages.EnableNoHunger, "Disabled food level loss and hunger damage in this area.", null);
+        this.addDefault(defaults, Messages.DisableNoHunger, "Enabled food level loss and hunger damage in this area.", null);
         this.addDefault(defaults, Messages.FoodRegenInvalid, "Please specify how much food level to regenerate per 5 seconds (zero for no regneration).", null);
 
-        this.addDefault(defaults, Messages.EnableCommandBlackList, "Now blocking the specified commands in this area.  Players with permission gpflags.bypass are immune to this flag.", null);
+        this.addDefault(defaults, Messages.EnableCommandBlackList, "Now blocking the specified commands in this area.  Players with permission gpflags.bypass.commandblacklist are immune to this flag.", null);
         this.addDefault(defaults, Messages.DisableCommandBlackList, "Stopped blocking commands in this area.", null);
-        this.addDefault(defaults, Messages.EnableCommandWhiteList, "Now blocking all commands EXCEPT the specified commands in this area.  Players with permission gpflags.bypass are immune to this flag.", null);
+        this.addDefault(defaults, Messages.EnableCommandWhiteList, "Now blocking all commands EXCEPT the specified commands in this area.  Players with permission gpflags.bypass.commandwhitelist are immune to this flag.", null);
         this.addDefault(defaults, Messages.DisableCommandWhiteList, "Stopped blocking commands in this area.", null);
         this.addDefault(defaults, Messages.CommandListRequired, "Please provide a list of commands, separated by semicolons(;).", null);
         this.addDefault(defaults, Messages.CommandBlockedHere, "You don't have permission to use that command here.", null);
 
         this.addDefault(defaults, Messages.CantFlyHere, "You can't fly here.", null);
-        this.addDefault(defaults, Messages.EnableNoFlight, "Now blocking flight in this area.  Players with permission gpflags.bypass are immune to this flag.", null);
+        this.addDefault(defaults, Messages.EnableNoFlight, "Now blocking flight in this area.  Players with permission gpflags.bypass.noflight are immune to this flag.", null);
         this.addDefault(defaults, Messages.DisableNoFlight, "Stopped preventing flight in this area.", null);
 
         this.addDefault(defaults, Messages.EnableTrappedDestination, "The /trapped command will now send players to the specified location when executed here.", null);
@@ -295,6 +295,9 @@ public class FlagsDataStore {
         
         this.addDefault(defaults, Messages.EnableReadLecterns, "Players can now read (not manipulate) lecturns on your claim", null);
         this.addDefault(defaults, Messages.DisableReadLecterns, "Players can no longer read lecturns on your claim", null);
+
+        this.addDefault(defaults, Messages.EnableNoBlockGravity, "Disabling block gravity in this area.", null);
+        this.addDefault(defaults, Messages.DisableNoBlockGravity, "Enabling block gravity in this area.", null);
 
         this.addDefault(defaults, Messages.Prefix, "&7[&bGP&3Flags&7] &r", null);
 
