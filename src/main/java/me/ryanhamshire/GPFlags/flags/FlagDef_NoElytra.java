@@ -22,13 +22,13 @@ public class FlagDef_NoElytra extends PlayerMovementFlagDefinition {
     }
 
     @Override
-    public boolean allowMovement(Player player, Location lastLocation, Location to, Claim claimFrom, Claim claimTo) {
-        if (lastLocation == null) return true;
+    public void onChangeClaim(Player player, Location lastLocation, Location to, Claim claimFrom, Claim claimTo) {
+        if (lastLocation == null) return;
         Flag flag = this.getFlagInstanceAtLocation(to, player);
-        if (flag == null) return true;
-        if (!player.isGliding()) return true;
+        if (flag == null) return;
+        if (!player.isGliding()) return;
+        if (Util.shouldBypass(player, claimTo, flag)) return;
         player.setGliding(false);
-        return true;
     }
 
     @EventHandler
@@ -36,11 +36,10 @@ public class FlagDef_NoElytra extends PlayerMovementFlagDefinition {
         Entity entity = event.getEntity();
         if (!(entity instanceof Player)) return;
         Player player = (Player) event.getEntity();
-        if (player.hasPermission("gpflags.bypass.noelytra")) return;
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
-        if (claim != null && claim.getOwnerID().equals(player.getUniqueId()) && player.hasPermission("gpflags.bypass.noelytra.ownclaim")) return;
-
-        if (this.getFlagInstanceAtLocation(entity.getLocation(), null) == null) return;
+        Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
+        if (flag == null) return;
+        if (Util.shouldBypass(player, claim, flag)) return;
 
         if (event.isGliding()) {
             event.setCancelled(true);

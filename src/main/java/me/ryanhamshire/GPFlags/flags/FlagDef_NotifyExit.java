@@ -1,24 +1,16 @@
 package me.ryanhamshire.GPFlags.flags;
 
-import me.ryanhamshire.GPFlags.Flag;
-import me.ryanhamshire.GPFlags.FlagManager;
-import me.ryanhamshire.GPFlags.GPFlags;
-import me.ryanhamshire.GPFlags.MessageSpecifier;
-import me.ryanhamshire.GPFlags.Messages;
-import me.ryanhamshire.GPFlags.SetFlagResult;
-import me.ryanhamshire.GPFlags.TextMode;
+import me.ryanhamshire.GPFlags.*;
 import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class FlagDef_ExitMessage extends PlayerMovementFlagDefinition {
+public class FlagDef_NotifyExit extends PlayerMovementFlagDefinition {
 
-    private final String prefix;
-
-    public FlagDef_ExitMessage(FlagManager manager, GPFlags plugin) {
+    public FlagDef_NotifyExit(FlagManager manager, GPFlags plugin) {
         super(manager, plugin);
-        this.prefix = plugin.getFlagsDataStore().getMessage(Messages.EnterExitPrefix);
     }
 
     @Override
@@ -29,7 +21,7 @@ public class FlagDef_ExitMessage extends PlayerMovementFlagDefinition {
 
         // get specific ExitMessage flag of origin claim and EnterMessage flag of destination claim
         Flag flagFrom = plugin.getFlagManager().getFlag(claimFrom, this);
-        Flag flagToEnter = plugin.getFlagManager().getFlag(claimTo, plugin.getFlagManager().getFlagDefinitionByName("EnterMessage"));
+        Flag flagToEnter = plugin.getFlagManager().getFlag(claimTo, plugin.getFlagManager().getFlagDefinitionByName("NotifyEnter"));
 
         // Don't repeat the exit message of a claim in certain cases
         if (claimFrom != null && claimTo != null) {
@@ -43,36 +35,36 @@ public class FlagDef_ExitMessage extends PlayerMovementFlagDefinition {
             }
         }
 
-        String message = flag.parameters;
-        if (claimFrom != null) {
-            message = message.replace("%owner%", claimFrom.getOwnerName()).replace("%name%", player.getName());
+        if (claimTo == null) return;
+        Player owner = Bukkit.getPlayer(claimTo.getOwnerID());
+        if (owner == null) return;
+        if (owner.getName().equals(player.getName())) return;
+        String param = flag.parameters;
+        if (param == null || param.isEmpty()) {
+            param = "claim " + claimTo.getID();
         }
-
-        Util.sendClaimMessage(player, TextMode.Info, prefix + message);
+        Util.sendClaimMessage(owner, TextMode.Info, Messages.NotifyEnter, player.getName(), param);
     }
+
 
     @Override
     public String getName() {
-        return "ExitMessage";
+        return "NotifyExit";
     }
 
     @Override
     public SetFlagResult validateParameters(String parameters) {
-        if (parameters.isEmpty()) {
-            return new SetFlagResult(false, new MessageSpecifier(Messages.MessageRequired));
-        }
-
         return new SetFlagResult(true, this.getSetMessage(parameters));
     }
 
     @Override
     public MessageSpecifier getSetMessage(String parameters) {
-        return new MessageSpecifier(Messages.AddedExitMessage, parameters);
+        return new MessageSpecifier(Messages.EnableNotifyExit, parameters);
     }
 
     @Override
     public MessageSpecifier getUnSetMessage() {
-        return new MessageSpecifier(Messages.RemovedExitMessage);
+        return new MessageSpecifier(Messages.DisableNotifyExit);
     }
 
 }

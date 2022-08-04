@@ -2,7 +2,8 @@ package me.ryanhamshire.GPFlags.flags;
 
 import me.ryanhamshire.GPFlags.FlagManager;
 import me.ryanhamshire.GPFlags.GPFlags;
-import me.ryanhamshire.GPFlags.event.PlayerClaimBorderEvent;
+import me.ryanhamshire.GPFlags.event.PlayerPostClaimBorderEvent;
+import me.ryanhamshire.GPFlags.event.PlayerPreClaimBorderEvent;
 import me.ryanhamshire.GriefPrevention.Claim;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,26 +24,21 @@ public abstract class PlayerMovementFlagDefinition extends FlagDefinition {
         super(manager, plugin);
     }
 
-    @Deprecated
-    public boolean allowMovement(Player player, Location from, Location to) {
-        return true;
-    }
-
     public boolean allowMovement(Player player, Location from, Location to, Claim claimFrom, Claim claimTo) {
         return true;
     }
 
     @EventHandler
-    public void onMove(PlayerClaimBorderEvent event) {
+    public void onMove(PlayerPreClaimBorderEvent event) {
         Player player = event.getPlayer();
-        Location lastLocation = event.getLocFrom().clone();
-        int fromMaxHeight = lastLocation.getWorld().getMaxHeight();
-        if (lastLocation.getY() > fromMaxHeight) {
-            lastLocation.setY(fromMaxHeight);
+        Location from = event.getLocFrom().clone();
+        int fromMaxHeight = from.getWorld().getMaxHeight();
+        if (from.getY() > fromMaxHeight) {
+            from.setY(fromMaxHeight);
         }
-        int fromMinHeight = lastLocation.getWorld().getMinHeight();
-        if (lastLocation.getY() < fromMinHeight) {
-            lastLocation.setY(fromMinHeight);
+        int fromMinHeight = from.getWorld().getMinHeight();
+        if (from.getY() < fromMinHeight) {
+            from.setY(fromMinHeight);
         }
         Location to = event.getLocTo().clone();
         int toMaxHeight = to.getWorld().getMaxHeight();
@@ -53,14 +49,19 @@ public abstract class PlayerMovementFlagDefinition extends FlagDefinition {
         if (to.getY() < toMinHeight) {
             to.setY(toMaxHeight);
         }
-        if (!this.allowMovement(player, lastLocation, to)) {
-            //this.undoMovement(player, lastLocation);
-            event.setCancelled(true);
-        }
-        if (!this.allowMovement(player, lastLocation, to, event.getClaimFrom(), event.getClaimTo())) {
+        Claim claimFrom = event.getClaimFrom();
+        Claim claimTo = event.getClaimTo();
+        if (!this.allowMovement(player, from, to, claimFrom, claimTo)) {
             event.setCancelled(true);
         }
     }
+
+    @EventHandler
+    public void onPostMove(PlayerPostClaimBorderEvent event) {
+        onChangeClaim(event.getPlayer(), event.getLocFrom(), event.getLocTo(), event.getClaimFrom(), event.getClaimTo());
+    }
+
+    public void onChangeClaim(Player player, Location from, Location to, Claim claimFrom, Claim claimTo) {}
 
     // This is being removed, but we are keeping it for a bit just in case
     public void undoMovement(Player player, Location lastLocation) {

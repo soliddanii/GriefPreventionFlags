@@ -6,6 +6,7 @@ import me.ryanhamshire.GPFlags.GPFlags;
 import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
 import me.ryanhamshire.GPFlags.SetFlagResult;
+import me.ryanhamshire.GriefPrevention.Claim;
 import org.bukkit.Location;
 import org.bukkit.WeatherType;
 import org.bukkit.entity.Player;
@@ -20,17 +21,17 @@ public class FlagDef_PlayerWeather extends PlayerMovementFlagDefinition implemen
     }
 
     @Override
-    public boolean allowMovement(Player player, Location lastLocation, Location to) {
-        if (lastLocation == null) return true;
+    public void onChangeClaim(Player player, Location lastLocation, Location to, Claim claimFrom, Claim claimTo) {
+        if (lastLocation == null) return;
         Flag flag = this.getFlagInstanceAtLocation(to, player);
         if (flag == null) {
             if (this.getFlagInstanceAtLocation(lastLocation, player) != null) {
                 player.resetPlayerWeather();
             }
-            return true;
+            return;
         }
 
-        if (flag == this.getFlagInstanceAtLocation(lastLocation, player)) return true;
+        if (flag == this.getFlagInstanceAtLocation(lastLocation, player)) return;
 
         String weather = flag.parameters;
         if (weather.equalsIgnoreCase("sun")) {
@@ -38,7 +39,6 @@ public class FlagDef_PlayerWeather extends PlayerMovementFlagDefinition implemen
         } else if (weather.equalsIgnoreCase("rain")) {
             player.setPlayerWeather(WeatherType.DOWNFALL);
         }
-        return true;
     }
 
     @EventHandler

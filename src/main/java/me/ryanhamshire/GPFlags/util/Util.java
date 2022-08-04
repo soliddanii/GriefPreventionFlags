@@ -25,6 +25,7 @@ import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -310,9 +311,25 @@ public class Util {
 
     public static boolean canBuild(Claim claim, Player player) {
         try {
-            return claim.checkPermission(player, ClaimPermission.Edit, null) == null;
+            return claim.checkPermission(player, ClaimPermission.Build, null) == null;
         } catch (NoSuchFieldError e) {
-            return claim.allowEdit(player) == null;
+            return claim.allowBuild(player, Material.STONE) == null;
+        }
+    }
+
+    public static boolean canInventory(Claim claim, Player player) {
+        try {
+            return claim.checkPermission(player, ClaimPermission.Inventory, null) == null;
+        } catch (NoSuchFieldError e) {
+            return claim.allowContainers(player) == null;
+        }
+    }
+
+    public static boolean canManage(Claim claim, Player player) {
+        try {
+            return claim.checkPermission(player, ClaimPermission.Manage, null) == null;
+        } catch (NoSuchFieldError e) {
+            return claim.allowGrantPermission(player) == null;
         }
     }
 
@@ -420,5 +437,51 @@ public class Util {
         return loc;
     }
 
+    public static boolean isClaimOwner(Claim c, Player p) {
+        if (c == null) return false;
+        if (c.getOwnerID() == null) return false;
+        return c.getOwnerID().equals(p.getUniqueId());
+    }
+
+    public static boolean shouldBypass(Player p, Claim c, String basePerm) {
+        if (p.hasPermission(basePerm)) return true;
+        if (c == null) return p.hasPermission(basePerm + ".nonclaim");
+        if (c.getOwnerID() == null && p.hasPermission(basePerm + ".adminclaim")) return true;
+        if (isClaimOwner(c, p) && p.hasPermission(basePerm + ".ownclaim")) return true;
+        if (isManageTrusted(p, c) && p.hasPermission(basePerm + ".manage")) return true;
+        if (isBuildTrusted(p, c) && (p.hasPermission(basePerm + ".build") || p.hasPermission(basePerm + ".edit"))) return true;
+        if (isContainerTrusted(p, c) && p.hasPermission(basePerm + ".inventory")) return true;
+        if (isAccessTrusted(p, c) && p.hasPermission(basePerm + ".access")) return true;
+        return false;
+    }
+
+    public static boolean shouldBypass(Player p, Claim c, Flag f) {
+        String basePerm = "gpflags.bypass." + f.getFlagDefinition().getName();
+        return shouldBypass(p, c, basePerm);
+    }
+
+    public static boolean isManageTrusted(Player p, @NotNull Claim c) {
+        return Util.canManage(c, p);
+    }
+
+    public static boolean isBuildTrusted(Player p, @NotNull Claim c) {
+        return Util.canBuild(c, p);
+    }
+
+    public static boolean isContainerTrusted(Player p, @NotNull Claim c) {
+        return Util.canInventory(c, p);
+    }
+
+    public static boolean isAccessTrusted(Player p, @NotNull Claim c) {
+        return Util.canAccess(c, p);
+    }
+
+    public static boolean canManageFlags(Player player, Claim claim) {
+        try {
+            return claim.checkPermission(player, ClaimPermission.Edit, null) == null;
+        } catch (NoSuchFieldError e) {
+            return claim.allowEdit(player) == null;
+        }
+    }
 
 }

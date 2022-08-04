@@ -10,7 +10,6 @@ import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,16 +28,13 @@ public class FlagDef_NoEnter extends PlayerMovementFlagDefinition {
         Flag flag = this.getFlagInstanceAtLocation(to, player);
         if (flag == null) return true;
 
-        if (lastLocation == null || flag == this.getFlagInstanceAtLocation(lastLocation, player)) return true;
-
         PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(to, false, playerData.lastClaim);
-        if (!Util.canAccess(claim, player)) {
-            Util.sendClaimMessage(player, TextMode.Err, Messages.NoEnterMessage);
-            return false;
-        }
+        if (Util.canAccess(claim, player)) return true;
+        if (playerData.ignoreClaims) return true;
 
-        return true;
+        Util.sendClaimMessage(player, TextMode.Err, Messages.NoEnterMessage);
+        return false;
     }
 
     @EventHandler

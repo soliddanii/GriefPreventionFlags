@@ -59,26 +59,25 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
     }
     
     @Override
-    public boolean allowMovement(Player player, Location lastLocation, Location to, Claim claimFrom, Claim claimTo) {
-        if (lastLocation == null) return true;
+    public void onChangeClaim(Player player, Location lastLocation, Location to, Claim claimFrom, Claim claimTo) {
+        if (lastLocation == null) return;
         Flag flag = this.getFlagInstanceAtLocation(to, player);
         WorldSettings settings = this.settingsManager.get(player.getWorld());
         if (flag == null) {
             if (this.getFlagInstanceAtLocation(lastLocation, player) != null) {
-                if (!settings.pvpRequiresClaimFlag) return true;
-                if (!settings.pvpExitClaimMessageEnabled) return true;
+                if (!settings.pvpRequiresClaimFlag) return;
+                if (!settings.pvpExitClaimMessageEnabled) return;
                 Util.sendClaimMessage(player, TextMode.Success, settings.pvpExitClaimMessage);
             }
-            return true;
+            return;
         }
-        if (flag == this.getFlagInstanceAtLocation(lastLocation, player)) return true;
-        if (this.getFlagInstanceAtLocation(lastLocation, player) != null) return true;
+        if (flag == this.getFlagInstanceAtLocation(lastLocation, player)) return;
+        if (this.getFlagInstanceAtLocation(lastLocation, player) != null) return;
 
-        if (!settings.pvpRequiresClaimFlag) return true;
-        if (!settings.pvpEnterClaimMessageEnabled) return true;
+        if (!settings.pvpRequiresClaimFlag) return;
+        if (!settings.pvpEnterClaimMessageEnabled) return;
 
         Util.sendClaimMessage(player, TextMode.Warn, settings.pvpEnterClaimMessage);
-        return true;
     }
 
     // bandaid
@@ -289,7 +288,7 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
                 return;
             }
             for (ItemStack item : player.getInventory()) {
-                if (item != null && isProjectile(item)) {
+                if (isProjectile(item)) {
                     event.getProjectile().setMetadata("item-stack", new FixedMetadataValue(GPFlags.getInstance(), item.clone()));
                     return;
                 }
@@ -298,6 +297,9 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
     }
 
     private boolean isProjectile(ItemStack item) {
+        if (item == null) {
+            return false;
+        }
         switch (item.getType()) {
             case ARROW:
             case SPECTRAL_ARROW:
