@@ -28,16 +28,13 @@ public class FlagDef_NoEnterPlayer extends PlayerMovementFlagDefinition {
 
         Flag flag = this.getFlagInstanceAtLocation(to, player);
         if (flag == null) return true;
-
-        if (lastLocation == null || flag == this.getFlagInstanceAtLocation(lastLocation, player)) return true;
-
+        if (!flag.parameters.toUpperCase().contains(player.getName().toUpperCase())) return true;
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(to, false, null);
+        if (player.getName().equalsIgnoreCase(claim.getOwnerName())) return true;
         PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
-        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(to, false, playerData.lastClaim);
-        if (flag.parameters.toUpperCase().contains(player.getName().toUpperCase()) && !Util.canAccess(claim, player)) {
-            Util.sendClaimMessage(player, TextMode.Err, Messages.NoEnterPlayerMessage);
-            return false;
-        }
-        return true;
+        if (playerData.ignoreClaims) return true;
+        Util.sendClaimMessage(player, TextMode.Err, Messages.NoEnterPlayerMessage);
+        return false;
     }
 
     @EventHandler
@@ -45,9 +42,9 @@ public class FlagDef_NoEnterPlayer extends PlayerMovementFlagDefinition {
         Player player = e.getPlayer();
         Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
         if (flag == null) return;
-        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
-        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, playerData.lastClaim);
-        if (Util.canAccess(claim, player)) return;
+        if (!flag.parameters.toUpperCase().contains(player.getName().toUpperCase())) return;
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
+        if (player.getName().equalsIgnoreCase(claim.getOwnerName())) return;
         Util.sendClaimMessage(player, TextMode.Err, Messages.NoEnterPlayerMessage);
         GriefPrevention.instance.ejectPlayer(player);
     }

@@ -1,27 +1,19 @@
 package me.ryanhamshire.GPFlags.flags;
 
-import me.ryanhamshire.GPFlags.Flag;
-import me.ryanhamshire.GPFlags.FlagManager;
-import me.ryanhamshire.GPFlags.GPFlags;
-import me.ryanhamshire.GPFlags.MessageSpecifier;
-import me.ryanhamshire.GPFlags.Messages;
-import me.ryanhamshire.GPFlags.SetFlagResult;
-import me.ryanhamshire.GPFlags.TextMode;
+import me.ryanhamshire.GPFlags.*;
 import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-public class FlagDef_EnterMessage extends PlayerMovementFlagDefinition {
+public class FlagDef_NotifyEnter extends PlayerMovementFlagDefinition {
 
-    private final String prefix;
-
-    public FlagDef_EnterMessage(FlagManager manager, GPFlags plugin) {
+    public FlagDef_NotifyEnter(FlagManager manager, GPFlags plugin) {
         super(manager, plugin);
-        this.prefix = plugin.getFlagsDataStore().getMessage(Messages.EnterExitPrefix);
     }
 
     @Override
@@ -32,7 +24,7 @@ public class FlagDef_EnterMessage extends PlayerMovementFlagDefinition {
 
         // get specific EnterMessage flag of destination claim and ExitMessage flag of origin claim
         Flag flagTo = plugin.getFlagManager().getFlag(claimTo, this);
-        Flag flagFromExit = plugin.getFlagManager().getFlag(claimFrom, plugin.getFlagManager().getFlagDefinitionByName("ExitMessage"));
+        Flag flagFromExit = plugin.getFlagManager().getFlag(claimFrom, plugin.getFlagManager().getFlagDefinitionByName("NotifyExit"));
 
         // Don't repeat the enter message of a claim in certain cases
         if (claimFrom != null && claimTo != null) {
@@ -46,12 +38,15 @@ public class FlagDef_EnterMessage extends PlayerMovementFlagDefinition {
             }
         }
 
-        String message = flag.parameters;
-        if (claimTo != null) {
-            message = message.replace("%owner%", claimTo.getOwnerName()).replace("%name%", player.getName());
+        if (claimTo == null) return;
+        Player owner = Bukkit.getPlayer(claimTo.getOwnerID());
+        if (owner == null) return;
+        if (owner.getName().equals(player.getName())) return;
+        String param = flag.parameters;
+        if (param == null || param.isEmpty()) {
+            param = "claim " + claimTo.getID();
         }
-
-        Util.sendClaimMessage(player, TextMode.Info, prefix + message);
+        Util.sendClaimMessage(owner, TextMode.Info, Messages.NotifyEnter, player.getName(), param);
     }
 
     @EventHandler
@@ -60,33 +55,36 @@ public class FlagDef_EnterMessage extends PlayerMovementFlagDefinition {
         Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
         if (flag == null) return;
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
-        String message = flag.parameters;
-        message = message.replace("%owner%", claim.getOwnerName()).replace("%name%", player.getName());
-        Util.sendClaimMessage(player, TextMode.Info, prefix + message);
+        if (claim == null) return;
+        Player owner = Bukkit.getPlayer(claim.getOwnerID());
+        if (owner == null) return;
+        if (owner.getName().equals(player.getName())) return;
+        String param = flag.parameters;
+        if (param == null || param.isEmpty()) {
+            param = "claim " + claim.getID();
+        }
+        Util.sendClaimMessage(owner, TextMode.Info, Messages.NotifyEnter, player.getName(), param);
+
     }
 
     @Override
     public String getName() {
-        return "EnterMessage";
+        return "NotifyEnter";
     }
 
     @Override
     public SetFlagResult validateParameters(String parameters) {
-        if (parameters.isEmpty()) {
-            return new SetFlagResult(false, new MessageSpecifier(Messages.MessageRequired));
-        }
-
         return new SetFlagResult(true, this.getSetMessage(parameters));
     }
 
     @Override
     public MessageSpecifier getSetMessage(String parameters) {
-        return new MessageSpecifier(Messages.AddedEnterMessage, parameters);
+        return new MessageSpecifier(Messages.EnableNotifyEnter, parameters);
     }
 
     @Override
     public MessageSpecifier getUnSetMessage() {
-        return new MessageSpecifier(Messages.RemovedEnterMessage);
+        return new MessageSpecifier(Messages.DisableNotifyEnter);
     }
 
 }

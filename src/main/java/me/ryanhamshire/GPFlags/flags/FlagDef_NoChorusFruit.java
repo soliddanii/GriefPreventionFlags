@@ -5,6 +5,7 @@ import me.ryanhamshire.GPFlags.FlagManager;
 import me.ryanhamshire.GPFlags.GPFlags;
 import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
+import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.entity.Player;
@@ -27,18 +28,21 @@ public class FlagDef_NoChorusFruit extends FlagDefinition {
         if (event.getCause() != TeleportCause.CHORUS_FRUIT) return;
 
         Player player = event.getPlayer();
-        if (player.hasPermission("gpflags.bypass.nochorusfruit")) return;
-        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
-        if (claim.getOwnerID().equals(player.getUniqueId()) && player.hasPermission("gpflags.bypass.nochorusfruit.ownclaim")) return;
 
         Flag flag = this.getFlagInstanceAtLocation(event.getFrom(), event.getPlayer());
         if (flag != null) {
-            event.setCancelled(true);
+            Claim claimFrom = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
+            if (!Util.shouldBypass(player, claimFrom, flag)) {
+                event.setCancelled(true);
+            }
         }
 
         flag = this.getFlagInstanceAtLocation(event.getTo(), event.getPlayer());
         if (flag != null) {
-            event.setCancelled(true);
+            Claim claimTo = GriefPrevention.instance.dataStore.getClaimAt(event.getTo(), false, null);
+            if (!Util.shouldBypass(player, claimTo, flag)) {
+                event.setCancelled(true);
+            }
         }
     }
 

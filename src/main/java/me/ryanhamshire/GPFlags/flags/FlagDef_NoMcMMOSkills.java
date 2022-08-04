@@ -8,6 +8,7 @@ import me.ryanhamshire.GPFlags.FlagManager;
 import me.ryanhamshire.GPFlags.GPFlags;
 import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
+import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.entity.Player;
@@ -41,13 +42,11 @@ public class FlagDef_NoMcMMOSkills extends FlagDefinition {
 
     private void handleEvent(Player player, Cancellable event) {
         Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
-        if (player.hasPermission("gpflags.bypass.nomcmmoskills")) return;
+        if (flag == null) return;
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
-        if (claim.getOwnerID().equals(player.getUniqueId()) && player.hasPermission("gpflags.bypass.nomcmmoskills.ownclaim")) return;
+        if (Util.shouldBypass(player, claim, flag)) return;
 
-        if (flag != null) {
-            event.setCancelled(true);
-        }
+        event.setCancelled(true);
     }
 
     @Override

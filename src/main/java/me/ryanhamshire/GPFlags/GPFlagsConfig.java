@@ -1,23 +1,24 @@
 package me.ryanhamshire.GPFlags;
 
+import com.google.common.io.Files;
+import me.ryanhamshire.GPFlags.commands.CommandBuyAccessTrust;
+import me.ryanhamshire.GPFlags.commands.CommandBuyBuildTrust;
+import me.ryanhamshire.GPFlags.commands.CommandBuyContainerTrust;
+import me.ryanhamshire.GPFlags.flags.*;
+import me.ryanhamshire.GPFlags.util.Util;
+import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import com.google.common.io.Files;
-
-import me.ryanhamshire.GPFlags.flags.*;
-import me.ryanhamshire.GPFlags.util.Util;
-import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 
 public class GPFlagsConfig {
@@ -82,6 +83,9 @@ public class GPFlagsConfig {
 
             settings.noMonsterSpawnIgnoreSpawners = inConfig.getBoolean("World Flags." + worldName + ".NoMonsterSpawn Flag Ignores Spawners and Eggs", true);
             outConfig.set("World Flags." + worldName + ".NoMonsterSpawn Flag Ignores Spawners and Eggs", settings.noMonsterSpawnIgnoreSpawners);
+
+            settings.noMobSpawnIgnoreSpawners = inConfig.getBoolean("World Flags." + worldName + ".NoMobSpawn Flag Ignores Spawners and Eggs", true);
+            outConfig.set("World Flags." + worldName + ".NoMobSpawn Flag Ignores Spawners and Eggs", settings.noMobSpawnIgnoreSpawners);
 
             outConfig.options().header("GriefPrevention Flags\n" + "Plugin Version: " + plugin.getDescription().getVersion() +
                     "\nServer Version: " + plugin.getServer().getVersion() + "\n\n");
@@ -166,11 +170,15 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_ChangeBiome(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoOpenDoors(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoVehicle(this.flagManager, plugin));
-
+            this.flagManager.registerFlagDefinition(new FlagDef_NoBlockForm(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_NoBlockSpread(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_NoDripstoneSpread(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoMobSpawnsType(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoItemDamage(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoElytra(this.flagManager, plugin));
-            
+            this.flagManager.registerFlagDefinition(new FlagDef_NotifyEnter(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_NotifyExit(this.flagManager, plugin));
+
             this.flagManager.registerFlagDefinition(new FlagDef_ViewContainers(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_ReadLecterns(this.flagManager, plugin));
 
@@ -205,6 +213,18 @@ public class GPFlagsConfig {
             } else {
                 this.flagManager.registerFlagDefinition(new FlagDef_PrivateChat(this.flagManager, plugin));
             } 
+
+            // vault-reliant flags
+            if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
+                plugin.getCommand("buybuildtrust").setExecutor(new CommandBuyBuildTrust());
+                plugin.getCommand("buycontainertrust").setExecutor(new CommandBuyContainerTrust());
+                plugin.getCommand("buyaccesstrust").setExecutor(new CommandBuyAccessTrust());
+
+                this.flagManager.registerFlagDefinition(new FlagDef_BuyBuildTrust(this.flagManager, plugin));
+                this.flagManager.registerFlagDefinition(new FlagDef_BuyContainerTrust(this.flagManager, plugin));
+                this.flagManager.registerFlagDefinition(new FlagDef_BuyAccessTrust(this.flagManager, plugin));
+            }
+
         } else {
             // Update world settings for flags (probably on a reload)
             this.flagManager.getFlagDefinitions().forEach(flagDefinition -> flagDefinition.updateSettings(plugin.getWorldSettingsManager()));

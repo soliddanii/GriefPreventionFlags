@@ -6,6 +6,7 @@ import me.ryanhamshire.GPFlags.GPFlags;
 import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
 import me.ryanhamshire.GPFlags.SetFlagResult;
+import me.ryanhamshire.GriefPrevention.Claim;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,17 +20,17 @@ public class FlagDef_PlayerTime extends PlayerMovementFlagDefinition implements 
     }
 
     @Override
-    public boolean allowMovement(Player player, Location lastLocation, Location to) {
-        if (lastLocation == null) return true;
+    public void onChangeClaim(Player player, Location lastLocation, Location to, Claim claimFrom, Claim claimTo) {
+        if (lastLocation == null) return;
         Flag flag = this.getFlagInstanceAtLocation(to, player);
 
         if (flag == null) {
             if (this.getFlagInstanceAtLocation(lastLocation, player) != null) {
                 player.resetPlayerTime();
             }
-            return true;
+            return;
         }
-        if (flag == this.getFlagInstanceAtLocation(lastLocation, player)) return true;
+        if (flag == this.getFlagInstanceAtLocation(lastLocation, player)) return;
 
         String time = flag.parameters;
         if (time.equalsIgnoreCase("day")) {
@@ -41,7 +42,6 @@ public class FlagDef_PlayerTime extends PlayerMovementFlagDefinition implements 
         } else if (time.equalsIgnoreCase("midnight")) {
             player.setPlayerTime(18000, false);
         }
-        return true;
     }
 
     @EventHandler

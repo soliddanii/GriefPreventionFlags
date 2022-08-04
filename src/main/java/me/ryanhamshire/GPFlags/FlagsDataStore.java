@@ -299,6 +299,46 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.EnableNoBlockGravity, "Disabling block gravity in this area.", null);
         this.addDefault(defaults, Messages.DisableNoBlockGravity, "Enabling block gravity in this area.", null);
 
+        this.addDefault(defaults, Messages.EnableNoBlockForm, "Blocks will no longer form based on world conditions.", null);
+        this.addDefault(defaults, Messages.DisableNoBlockForm, "Blocks will once again form based on world conditions.", null);
+
+        this.addDefault(defaults, Messages.EnableNoBlockSpread, "Blocks will no longer spread based on world conditions.", null);
+        this.addDefault(defaults, Messages.DisableNoBlockSpread, "Blocks will once again spread based on world conditions.", null);
+
+        this.addDefault(defaults, Messages.EnableNoDripstoneSpread, "Dripstone will no longer spread based on world conditions.", null);
+        this.addDefault(defaults, Messages.DisableNoDripstoneSpread, "Dripstone will once again spread based on world conditions.", null);
+
+        this.addDefault(defaults, Messages.EnableBuyBuildTrust, "Build trust can now be bought in this claim for {0}.", "0: Cost");
+        this.addDefault(defaults, Messages.DisableBuyBuildTrust, "Build trust can no longer be bought in this claim.", null);
+        this.addDefault(defaults, Messages.BuildTrustPrice, "You can buy build trust in this claim for \\${0}. If you wish to do so, use /buybuildtrust.",
+                "0: cost");
+        this.addDefault(defaults, Messages.EnableBuyAccessTrust, "Access trust can now be bought in this claim for {0}.", "0: Cost");
+        this.addDefault(defaults, Messages.DisableBuyAccessTrust, "Access trust can no longer be bought in this claim.", null);
+        this.addDefault(defaults, Messages.AccessTrustPrice, "You can buy access trust in this claim for \\${0}. If you wish to do so, use /buyaccesstrust.",
+                "0: cost");
+        this.addDefault(defaults, Messages.EnableBuyContainerTrust, "Container trust can now be bought in this claim for {0}.", "0: Cost");
+        this.addDefault(defaults, Messages.DisableBuyContainerTrust, "Container trust can no longer be bought in this claim.", null);
+        this.addDefault(defaults, Messages.ContainerTrustPrice, "You can buy container trust in this claim for \\${0}. If you wish to do so, use /buycontainertrust.",
+                "0: cost");
+        this.addDefault(defaults, Messages.CostRequired, "You must specify a price",
+                null);
+        this.addDefault(defaults, Messages.ProblemWithFlagSetup, "There was an issue in the flag params.", "0: Cost");
+        this.addDefault(defaults, Messages.AlreadyHaveTrust, "You already have trust in this claim", null);
+        this.addDefault(defaults, Messages.NotEnoughMoney, "You do not have enough money to buy that type of trust.", null);
+        this.addDefault(defaults, Messages.CannotBuyTrustHere, "That type of trust can not be bought in this claim.", null);
+        this.addDefault(defaults, Messages.BoughtTrust, "You have successfully bought that type of trust for {0}.", "0: Cost");
+
+        this.addDefault(defaults, Messages.EnableNotifyEnter, "You will now receive notifications when a player enters this claim", null);
+        this.addDefault(defaults, Messages.DisableNotifyEnter, "You will no longer receive notifications when a player enters this claim", null);
+        this.addDefault(defaults, Messages.NotifyEnter, "{0} has entered {1}", "0: player, 1: claim name");
+
+        this.addDefault(defaults, Messages.EnableNotifyExit, "You will now receive notifications when a player enters this claim", null);
+        this.addDefault(defaults, Messages.DisableNotifyExit, "You will no longer receive notifications when a player exits this claim", null);
+        this.addDefault(defaults, Messages.NotifyExit, "{0} has left {1}", "0: player, 1: claim name");
+
+
+
+
         this.addDefault(defaults, Messages.Prefix, "&7[&bGP&3Flags&7] &r", null);
 
         //load the config file

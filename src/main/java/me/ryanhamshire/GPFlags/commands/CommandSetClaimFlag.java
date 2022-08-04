@@ -68,8 +68,8 @@ public class CommandSetClaimFlag implements TabExecutor {
             return true;
         }
 
-        // Check that they are the owner of the claim
-        if (!Util.canBuild(claim, player)) {
+        // Check that they can set flags in the area
+        if (!Util.canManageFlags(player, claim)) {
             Util.sendMessage(player, TextMode.Err, Messages.NotYourClaim);
             return true;
         }
@@ -152,7 +152,7 @@ public class CommandSetClaimFlag implements TabExecutor {
         }
 
         // Turn on fly if it was a Fly flag
-        if (args[0].equalsIgnoreCase("OwnerFly")) {
+        if (args[0].equalsIgnoreCase("OwnerFly") && player.getUniqueId().equals(claim.getOwnerID())) {
             player.setAllowFlight(true);
         }
         if (args[0].equalsIgnoreCase("OwnerMemberFly")) {
