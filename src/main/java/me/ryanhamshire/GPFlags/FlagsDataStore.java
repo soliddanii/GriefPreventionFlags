@@ -100,6 +100,9 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.EnableKeepLevel, "Players will keep their experience/levels when they die in this land claim.", null);
         this.addDefault(defaults, Messages.DisableKeepLevel, "Disabled protection for experience/levels when dying in this land claim.", null);
 
+        this.addDefault(defaults, Messages.EnableKeepLoaded, "This claim will be kept loaded.", null);
+        this.addDefault(defaults, Messages.DisableKeepLoaded, "This claim will no longer be kept loaded.", null);
+
         this.addDefault(defaults, Messages.EnableNetherPortalPlayerCommand, "Players who step into nether portals in this land claim will now auto-execute the specified command line.", null);
         this.addDefault(defaults, Messages.DisableNetherPortalPlayerCommand, "Disabled player command execution for nether portals in this land claim.", null);
 
@@ -121,7 +124,7 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.EnableNoPlayerDamageByMonster, "Players will not take any damage by monsters in this land claim.", null);
         this.addDefault(defaults, Messages.DisableNoPlayerDamageByMonster, "Stopped preventing player damage by monsters in this land claim.", null);
 
-        this.addDefault(defaults, Messages.EnabledNoEnter, "Players now require /AccessTrust or higher permission to enter this area.  Players with permission gpflags.bypass.noenter are immune to this flag.", null);
+        this.addDefault(defaults, Messages.EnabledNoEnter, "Players now require /AccessTrust or higher permission to enter this area.", null);
         this.addDefault(defaults, Messages.DisabledNoEnter, "Stopped requiring permission to enter this area.", null);
         this.addDefault(defaults, Messages.NoEnterMessage, "You have been blocked from entering this claim", null);
 
@@ -136,15 +139,15 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.DisableNoHunger, "Enabled food level loss and hunger damage in this area.", null);
         this.addDefault(defaults, Messages.FoodRegenInvalid, "Please specify how much food level to regenerate per 5 seconds (zero for no regneration).", null);
 
-        this.addDefault(defaults, Messages.EnableCommandBlackList, "Now blocking the specified commands in this area.  Players with permission gpflags.bypass.commandblacklist are immune to this flag.", null);
+        this.addDefault(defaults, Messages.EnableCommandBlackList, "Now blocking the specified commands in this area.", null);
         this.addDefault(defaults, Messages.DisableCommandBlackList, "Stopped blocking commands in this area.", null);
-        this.addDefault(defaults, Messages.EnableCommandWhiteList, "Now blocking all commands EXCEPT the specified commands in this area.  Players with permission gpflags.bypass.commandwhitelist are immune to this flag.", null);
+        this.addDefault(defaults, Messages.EnableCommandWhiteList, "Now blocking all commands EXCEPT the specified commands in this area.", null);
         this.addDefault(defaults, Messages.DisableCommandWhiteList, "Stopped blocking commands in this area.", null);
         this.addDefault(defaults, Messages.CommandListRequired, "Please provide a list of commands, separated by semicolons(;).", null);
         this.addDefault(defaults, Messages.CommandBlockedHere, "You don't have permission to use that command here.", null);
 
         this.addDefault(defaults, Messages.CantFlyHere, "You can't fly here.", null);
-        this.addDefault(defaults, Messages.EnableNoFlight, "Now blocking flight in this area.  Players with permission gpflags.bypass.noflight are immune to this flag.", null);
+        this.addDefault(defaults, Messages.EnableNoFlight, "Now blocking flight in this area.", null);
         this.addDefault(defaults, Messages.DisableNoFlight, "Stopped preventing flight in this area.", null);
 
         this.addDefault(defaults, Messages.EnableTrappedDestination, "The /trapped command will now send players to the specified location when executed here.", null);
@@ -253,6 +256,9 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.EnabledNoExplosionDamage, "Players will no longer take damage caused by explosions in this claim", null);
         this.addDefault(defaults, Messages.DisabledNoExplosionDamage, "Players will now continue to take damage caused by explosions in this claim", null);
 
+        this.addDefault(defaults, Messages.EnabledAllowBlockExplosions, "Blocks will now explode in this region", null);
+        this.addDefault(defaults, Messages.DisabledAllowBlockExplosions, "Blocks will no longer explode in this region", null);
+
         this.addDefault(defaults, Messages.NoOwnerFlag, "You cannot set both OwnerFly and OwnerMemberFly flags in one claim", null);
 
         this.addDefault(defaults, Messages.ChangeBiomeSet, "The biome in this claim has been set to {0}. Relog to see the changes.", "0: Biome");
@@ -287,6 +293,8 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.EnabledProtectNamedMobs, "Named mobs will no longer take damage in this area", null);
         this.addDefault(defaults, Messages.DisabledProtectNamedMobs, "Named mobs will continue to take damage in this area", null);
 
+        this.addDefault(defaults, Messages.EnabledNoStructureGrowth, "Now preventing structure growth in this region.", null);
+        this.addDefault(defaults, Messages.DisableNoStructureGrowth, "No longer preventing structure growth in this region.", null);
         this.addDefault(defaults, Messages.EnableNoElytra, "Players will no longer be able to glide in this area", null);
         this.addDefault(defaults, Messages.DisableNoElytra, "Players will now be able to glide in this area", null);
         
@@ -310,15 +318,15 @@ public class FlagsDataStore {
 
         this.addDefault(defaults, Messages.EnableBuyBuildTrust, "Build trust can now be bought in this claim for {0}.", "0: Cost");
         this.addDefault(defaults, Messages.DisableBuyBuildTrust, "Build trust can no longer be bought in this claim.", null);
-        this.addDefault(defaults, Messages.BuildTrustPrice, "You can buy build trust in this claim for \\${0}. If you wish to do so, use /buybuildtrust.",
+        this.addDefault(defaults, Messages.BuildTrustPrice, "You can buy build trust in this claim for ${0}. If you wish to do so, use /buybuildtrust.",
                 "0: cost");
         this.addDefault(defaults, Messages.EnableBuyAccessTrust, "Access trust can now be bought in this claim for {0}.", "0: Cost");
         this.addDefault(defaults, Messages.DisableBuyAccessTrust, "Access trust can no longer be bought in this claim.", null);
-        this.addDefault(defaults, Messages.AccessTrustPrice, "You can buy access trust in this claim for \\${0}. If you wish to do so, use /buyaccesstrust.",
+        this.addDefault(defaults, Messages.AccessTrustPrice, "You can buy access trust in this claim for ${0}. If you wish to do so, use /buyaccesstrust.",
                 "0: cost");
         this.addDefault(defaults, Messages.EnableBuyContainerTrust, "Container trust can now be bought in this claim for {0}.", "0: Cost");
         this.addDefault(defaults, Messages.DisableBuyContainerTrust, "Container trust can no longer be bought in this claim.", null);
-        this.addDefault(defaults, Messages.ContainerTrustPrice, "You can buy container trust in this claim for \\${0}. If you wish to do so, use /buycontainertrust.",
+        this.addDefault(defaults, Messages.ContainerTrustPrice, "You can buy container trust in this claim for ${0}. If you wish to do so, use /buycontainertrust.",
                 "0: cost");
         this.addDefault(defaults, Messages.CostRequired, "You must specify a price",
                 null);
@@ -326,7 +334,7 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.AlreadyHaveTrust, "You already have trust in this claim", null);
         this.addDefault(defaults, Messages.NotEnoughMoney, "You do not have enough money to buy that type of trust.", null);
         this.addDefault(defaults, Messages.CannotBuyTrustHere, "That type of trust can not be bought in this claim.", null);
-        this.addDefault(defaults, Messages.BoughtTrust, "You have successfully bought that type of trust for {0}.", "0: Cost");
+        this.addDefault(defaults, Messages.BoughtTrust, "You have successfully bought that type of trust for ${0}.", "0: Cost");
 
         this.addDefault(defaults, Messages.EnableNotifyEnter, "You will now receive notifications when a player enters this claim", null);
         this.addDefault(defaults, Messages.DisableNotifyEnter, "You will no longer receive notifications when a player enters this claim", null);
@@ -336,8 +344,25 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.DisableNotifyExit, "You will no longer receive notifications when a player exits this claim", null);
         this.addDefault(defaults, Messages.NotifyExit, "{0} has left {1}", "0: player, 1: claim name");
 
+        this.addDefault(defaults, Messages.EnabledAllowWitherDamage, "Withers can now deal damage to mobs in this region", null);
+        this.addDefault(defaults, Messages.DisabledAllowWitherDamage, "Withers can no longer deal damage to mobs in this region", null);
+        this.addDefault(defaults, Messages.EnableNoEliteMobSpawns, "Now preventing elite mob spawns in this region.", null);
+        this.addDefault(defaults, Messages.DisableNoEliteMobSpawns, "No longer preventing elite mob spawns in this region.", null);
 
 
+        this.addDefault(defaults, Messages.EnabledNoPotionEffects, "Potion effects are now disabled in this region.", null);
+        this.addDefault(defaults, Messages.DisabledNoPotionEffects, "Potion effects are now enabled in this region.", null);
+        this.addDefault(defaults, Messages.NotValidPotionName, "{0} is not a valid potion effect type. See https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/potion/PotionEffectType.html for a complete list.", "0: invalid potion effect type");
+        this.addDefault(defaults, Messages.SpecifyPotionEffectName, "Potion effect names required or use 'all' for all effects.", null);
+
+        this.addDefault(defaults, Messages.EnabledSpawnReasonWhitelist, "Only spawns of the selected reasons will be allowed in this region.", null);
+        this.addDefault(defaults, Messages.DisabledSpawnReasonWhitelist, "Spawns are now allowed in this region.", null);
+        this.addDefault(defaults, Messages.NotValidSpawnReason, "{0} is not a valid spawn reason. See https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/CreatureSpawnEvent.SpawnReason.html for a complete list.", "0: invalid spawn reason");
+        this.addDefault(defaults, Messages.SpecifySpawnReason, "Spawn reason names required.", null);
+
+        this.addDefault(defaults, Messages.EnableBuySubclaim, "This subclaim can now be bought for {0}.", "0: cost");
+        this.addDefault(defaults, Messages.DisableBuySubclaim, "This subclaim can no longer be purchased.", null);
+        this.addDefault(defaults, Messages.SubclaimPrice, "You can buy this subclaim for {0}. If you wish to do so, use /buysubclaim.", "0: cost");
 
         this.addDefault(defaults, Messages.Prefix, "&7[&bGP&3Flags&7] &r", null);
 
@@ -359,7 +384,6 @@ public class FlagsDataStore {
             //read the message from the file, use default if necessary
             this.messages[messageID.ordinal()] = config.getString("Messages." + messageID.name() + ".Text", messageData.text);
             config.set("Messages." + messageID.name() + ".Text", this.messages[messageID.ordinal()]);
-            this.messages[messageID.ordinal()] = this.messages[messageID.ordinal()].replace('$', (char) 0x00A7);
 
             if (messageData.notes != null) {
                 messageData.notes = config.getString("Messages." + messageID.name() + ".Notes", messageData.notes);

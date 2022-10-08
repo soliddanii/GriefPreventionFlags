@@ -13,25 +13,25 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import java.util.Collections;
 import java.util.List;
 
-public class FlagDef_BuyContainerTrust extends PlayerMovementFlagDefinition {
+public class FlagDef_BuySubclaim extends PlayerMovementFlagDefinition {
 
-    public FlagDef_BuyContainerTrust(FlagManager manager, GPFlags plugin) {
+    public FlagDef_BuySubclaim(FlagManager manager, GPFlags plugin) {
         super(manager, plugin);
     }
 
     @Override
     public String getName() {
-        return "BuyContainerTrust";
+        return "BuySubclaim";
     }
 
     @Override
     public MessageSpecifier getSetMessage(String parameters) {
-        return new MessageSpecifier(Messages.EnableBuyContainerTrust, parameters);
+        return new MessageSpecifier(Messages.EnableBuySubclaim, parameters);
     }
 
     @Override
     public MessageSpecifier getUnSetMessage() {
-        return new MessageSpecifier(Messages.DisableBuyContainerTrust);
+        return new MessageSpecifier(Messages.DisableBuySubclaim);
     }
 
     @Override
@@ -61,10 +61,12 @@ public class FlagDef_BuyContainerTrust extends PlayerMovementFlagDefinition {
         Flag flag = this.getFlagInstanceAtLocation(to, player);
         if (flag == null) return;
 
-        if (claimTo.getPermission(player.getUniqueId().toString()) == ClaimPermission.Inventory) return;
+        if (claimTo == null) return;
+        if (claimTo.parent == null) return;
         if (claimTo.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build) return;
         if (player.getUniqueId().equals(claimTo.getOwnerID())) return;
-        Util.sendMessage(player, TextMode.Info, Messages.ContainerTrustPrice, flag.parameters);
+
+        Util.sendMessage(player, TextMode.Info, Messages.SubclaimPrice, flag.parameters);
     }
 
     @EventHandler
@@ -72,10 +74,13 @@ public class FlagDef_BuyContainerTrust extends PlayerMovementFlagDefinition {
         Player player = e.getPlayer();
         Flag flag = this.getFlagInstanceAtLocation(player.getLocation(), player);
         if (flag == null) return;
+
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
-        if (claim.getPermission(e.getPlayer().getUniqueId().toString()) == ClaimPermission.Inventory) return;
-        if (claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build) return;
+        if (claim == null) return;
+        if (claim.parent == null) return;
+        if (claim.getPermission(e.getPlayer().getUniqueId().toString()) == ClaimPermission.Build) return;
         if (player.getUniqueId().equals(claim.getOwnerID())) return;
-        Util.sendMessage(player, TextMode.Info, Messages.ContainerTrustPrice, flag.parameters);
+
+        Util.sendMessage(player, TextMode.Info, Messages.SubclaimPrice, flag.parameters);
     }
 }

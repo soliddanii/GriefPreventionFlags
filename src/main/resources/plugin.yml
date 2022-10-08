@@ -1,7 +1,7 @@
-name: GriefPreventionFlags
+name: GPFlags
 main: me.ryanhamshire.GPFlags.GPFlags
 depend: [GriefPrevention]
-softdepend: [mcMMO, Vault, MythicMobs, DiscordSRV]
+softdepend: [mcMMO, Vault, MythicMobs, EliteMobs, DiscordSRV]
 authors: [Big_Scary, ShaneBee, DmitryRendov, DrBot, soliddanii]
 description: GriefPrevention add-on to set flags in claims.
 website: https://www.spigotmc.org/resources/griefprevention-flags.55773/
@@ -54,7 +54,7 @@ commands:
     permission: gpflags.command.listclaimflags
   setworldflag:
     description: Sets a flag on an entire world.
-    usage: /SetWorldFlag <flag> <optional parameters>
+    usage: /SetWorldFlag <world> <flag> <optional parameters>
     aliases: [ placeworldflag, putworldflag, worldflag ]
     permission: gpflags.command.setworldflag
   unsetworldflag:
@@ -81,6 +81,9 @@ commands:
   buyaccesstrust:
     description: Buy inventorytrust in a claim.
     usage: /buyinventorytrust
+  buysubclaim:
+    description: Buy the subclaim
+    usage: /buysubclaim
 permissions:
   gpflags.admin.*:
     description: Grants all administrative functionality. (depreciated)

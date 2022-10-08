@@ -2,11 +2,7 @@
 /.idea/
 /target/
 /dependency-reduced-pom.xml
-<<<<<<< HEAD
 .classpath
 .project
 .settings/
-=======
-/.classpath
-/.project
->>>>>>> 55e0d77685f81582bbbe83da9192d707ac781f8f
+.vscode/

@@ -4,6 +4,7 @@ import me.ryanhamshire.GPFlags.*;
 import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -39,6 +40,8 @@ public class FlagDef_NotifyExit extends PlayerMovementFlagDefinition {
         Player owner = Bukkit.getPlayer(claimTo.getOwnerID());
         if (owner == null) return;
         if (owner.getName().equals(player.getName())) return;
+        if (!owner.canSee(player)) return;
+        if (player.getGameMode() == GameMode.SPECTATOR) return;
         String param = flag.parameters;
         if (param == null || param.isEmpty()) {
             param = "claim " + claimTo.getID();

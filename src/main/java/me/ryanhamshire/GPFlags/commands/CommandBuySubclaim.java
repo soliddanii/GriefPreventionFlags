@@ -1,6 +1,7 @@
 package me.ryanhamshire.GPFlags.commands;
 
 import me.ryanhamshire.GPFlags.*;
+import me.ryanhamshire.GPFlags.flags.FlagDefinition;
 import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
@@ -13,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
-public class CommandBuyBuildTrust implements CommandExecutor {
+public class CommandBuySubclaim implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
@@ -23,16 +24,16 @@ public class CommandBuyBuildTrust implements CommandExecutor {
         }
         Player player = (Player) sender;
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), false, null);
-        if (claim == null) {
+        if (claim == null || claim.parent == null) {
             Util.sendMessage(sender, TextMode.Err, Messages.CannotBuyTrustHere);
             return true;
         }
 
         Collection<Flag> flags = GPFlags.getInstance().getFlagManager().getFlags(claim.getID().toString());
         for (Flag flag : flags) {
-            if (flag.getFlagDefinition().getName().equalsIgnoreCase("BuyBuildTrust")) {
-                if (claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build ||
-                        player.getUniqueId().equals(claim.getOwnerID())) {
+            if (flag.getFlagDefinition().getName().equalsIgnoreCase("BuySubclaim")) {
+                if (claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build
+                        || player.getUniqueId().equals(claim.getOwnerID())) {
                     Util.sendMessage(sender, TextMode.Err, Messages.AlreadyHaveTrust);
                     return true;
                 }
@@ -55,6 +56,8 @@ public class CommandBuyBuildTrust implements CommandExecutor {
                     VaultHook.giveMoney(claim.getOwnerID(), cost);
                 }
                 claim.setPermission(player.getUniqueId().toString(), ClaimPermission.Build);
+                claim.setPermission(player.getUniqueId().toString(), ClaimPermission.Manage);
+                GPFlags.getInstance().getFlagManager().unSetFlag(claim, flag.getFlagDefinition(), true);
                 Util.sendMessage(sender, TextMode.Info, Messages.BoughtTrust, flag.parameters);
                 return true;
             }

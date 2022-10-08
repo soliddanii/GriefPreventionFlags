@@ -41,6 +41,8 @@ public enum Messages {
     NoFlagPermission,
     EnableKeepLevel,
     DisableKeepLevel,
+    EnableKeepLoaded,
+    DisableKeepLoaded,
     EnableNetherPortalPlayerCommand,
     DisableNetherPortalPlayerCommand,
     CommandRequired,
@@ -159,6 +161,8 @@ public enum Messages {
     DisabledNoFallDamage,
     EnabledNoExplosionDamage,
     DisabledNoExplosionDamage,
+    EnabledAllowBlockExplosions,
+    DisabledAllowBlockExplosions,
     NoOwnerFlag,
     EnablePrivateChat,
     DisablePrivateChat,
@@ -200,7 +204,13 @@ public enum Messages {
     EnableBuyAccessTrust,
     DisableBuyAccessTrust,
     AccessTrustPrice,
+    EnabledAllowWitherDamage,
+    DisabledAllowWitherDamage,
+    EnableNoEliteMobSpawns,
+    DisableNoEliteMobSpawns,
 
+    EnabledNoStructureGrowth,
+    DisableNoStructureGrowth,
 
     //EXPERIMENTAL
     ChangeBiomeSet,
@@ -231,6 +241,20 @@ public enum Messages {
 
     EnabledProtectNamedMobs,
     DisabledProtectNamedMobs,
+
+    NotValidPotionName,
+    EnabledNoPotionEffects,
+    DisabledNoPotionEffects,
+    SpecifyPotionEffectName,
+
+    SpecifySpawnReason,
+    NotValidSpawnReason,
+    EnabledSpawnReasonWhitelist,
+    DisabledSpawnReasonWhitelist,
+
+    EnableBuySubclaim,
+    DisableBuySubclaim,
+    SubclaimPrice,
 
     Prefix
 }

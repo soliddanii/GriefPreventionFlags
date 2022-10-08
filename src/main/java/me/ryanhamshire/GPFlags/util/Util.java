@@ -4,6 +4,8 @@ import me.ryanhamshire.GPFlags.*;
 import me.ryanhamshire.GPFlags.flags.FlagDefinition;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.PlayerData;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
@@ -112,7 +114,7 @@ public class Util {
         }
     }
 
-    private static boolean canFly(Player player) {
+    public static boolean canFly(Player player) {
         GameMode mode = player.getGameMode();
         return mode == GameMode.SPECTATOR || mode == GameMode.CREATIVE || player.hasPermission("gpflags.bypass.fly");
     }
@@ -194,7 +196,7 @@ public class Util {
     public static boolean isMonster(Entity entity) {
         EntityType type = entity.getType();
         return (entity instanceof Monster || type == EntityType.GHAST || type == EntityType.MAGMA_CUBE || type == EntityType.SHULKER
-                || type == EntityType.PHANTOM || type == EntityType.SLIME);
+                || type == EntityType.PHANTOM || type == EntityType.SLIME || type == EntityType.HOGLIN);
     }
 
     /**
@@ -310,30 +312,38 @@ public class Util {
     }
 
     public static boolean canBuild(Claim claim, Player player) {
+        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
+        if (playerData.ignoreClaims) return true;
         try {
             return claim.checkPermission(player, ClaimPermission.Build, null) == null;
-        } catch (NoSuchFieldError e) {
+        } catch (NoSuchFieldError | NoSuchMethodError e) {
             return claim.allowBuild(player, Material.STONE) == null;
         }
     }
 
     public static boolean canInventory(Claim claim, Player player) {
+        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
+        if (playerData.ignoreClaims) return true;
         try {
             return claim.checkPermission(player, ClaimPermission.Inventory, null) == null;
-        } catch (NoSuchFieldError e) {
+        } catch (NoSuchFieldError | NoSuchMethodError e) {
             return claim.allowContainers(player) == null;
         }
     }
 
     public static boolean canManage(Claim claim, Player player) {
+        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
+        if (playerData.ignoreClaims) return true;
         try {
             return claim.checkPermission(player, ClaimPermission.Manage, null) == null;
-        } catch (NoSuchFieldError e) {
+        } catch (NoSuchFieldError | NoSuchMethodError e) {
             return claim.allowGrantPermission(player) == null;
         }
     }
 
     public static boolean canAccess(Claim claim, Player player) {
+        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
+        if (playerData.ignoreClaims) return true;
         try {
             return claim.checkPermission(player, ClaimPermission.Access, null) == null;
         } catch (NoSuchMethodError e) {
@@ -482,6 +492,17 @@ public class Util {
         } catch (NoSuchFieldError e) {
             return claim.allowEdit(player) == null;
         }
+    }
+
+    public static HashSet<Player> getPlayersIn(Claim claim) {
+        HashSet<Player> players = new HashSet<>();
+        World world = claim.getGreaterBoundaryCorner().getWorld();
+        for (Player p : world.getPlayers()) {
+            if (claim.contains(p.getLocation(), false, false)) {
+                players.add(p);
+            }
+        }
+        return players;
     }
 
 }

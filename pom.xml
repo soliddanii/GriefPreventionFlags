@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>tk.shanebee</groupId>
-    <artifactId>GriefPreventionFlags</artifactId>
-    <version>5.12.3</version>
+    <artifactId>GPFlags</artifactId>
+    <version>5.12.6-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -15,6 +15,10 @@
     </properties>
 
     <repositories>
+        <repository>
+            <id>Scarsz-Nexus</id>
+            <url>https://nexus.scarsz.me/content/groups/public/</url>
+        </repository>
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
@@ -29,10 +33,6 @@
             <url>https://jitpack.io</url>
         </repository>
         <repository>
-            <id>Scarsz-Nexus</id>
-            <url>https://nexus.scarsz.me/content/groups/public/</url>
-        </repository>
-        <repository>
             <id>purpur</id>
             <url>https://repo.purpurmc.org/snapshots</url>
         </repository>
@@ -42,6 +42,10 @@
             <name>Lumine Releases</name>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>akiradev-repo</id>
+            <url>https://repo.akiradev.xyz/repository/public/</url>
+        </repository>
 
     </repositories>
 
@@ -49,7 +53,7 @@
         <dependency>
             <groupId>org.purpurmc.purpur</groupId>
             <artifactId>purpur-api</artifactId>
-            <version>1.19.1-R0.1-SNAPSHOT</version>
+            <version>1.19.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -81,7 +85,7 @@
         <dependency>
             <groupId>com.discordsrv</groupId>
             <artifactId>discordsrv</artifactId>
-            <version>1.22.0</version>
+            <version>1.26.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -99,6 +103,11 @@
             <artifactId>Mythic-Dist</artifactId>
             <version>5.0.3-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.magmaguy</groupId>
+            <artifactId>EliteMobs</artifactId>
+            <version>8.0.2</version>
         </dependency>
     </dependencies>
 

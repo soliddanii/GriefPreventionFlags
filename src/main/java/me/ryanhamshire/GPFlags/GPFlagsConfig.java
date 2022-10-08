@@ -1,24 +1,27 @@
 package me.ryanhamshire.GPFlags;
 
-import com.google.common.io.Files;
-import me.ryanhamshire.GPFlags.commands.CommandBuyAccessTrust;
-import me.ryanhamshire.GPFlags.commands.CommandBuyBuildTrust;
-import me.ryanhamshire.GPFlags.commands.CommandBuyContainerTrust;
-import me.ryanhamshire.GPFlags.flags.*;
-import me.ryanhamshire.GPFlags.util.Util;
-import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import com.google.common.io.Files;
+
+import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GPFlags.commands.CommandBuyAccessTrust;
+import me.ryanhamshire.GPFlags.commands.CommandBuyBuildTrust;
+import me.ryanhamshire.GPFlags.commands.CommandBuyContainerTrust;
+import me.ryanhamshire.GPFlags.commands.CommandBuySubclaim;
+import me.ryanhamshire.GPFlags.flags.*;
+import me.ryanhamshire.GPFlags.util.Util;
 
 
 public class GPFlagsConfig {
@@ -55,7 +58,7 @@ public class GPFlagsConfig {
 
             settings.worldGamemodeDefault = inConfig.getString("World Flags." + worldName + ".Default Gamemode", "survival");
             String worldGMDefault = settings.worldGamemodeDefault;
-            if (worldGMDefault == null || !worldGMDefault.equalsIgnoreCase("survival") && !worldGMDefault.equalsIgnoreCase("creative") &&
+            if (!worldGMDefault.equalsIgnoreCase("survival") && !worldGMDefault.equalsIgnoreCase("creative") &&
                     !worldGMDefault.equalsIgnoreCase("adventure") && !worldGMDefault.equalsIgnoreCase("spectator")) {
                 settings.worldGamemodeDefault = "survival";
             }
@@ -118,6 +121,7 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_KeepInventory(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_InfiniteArrows(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_KeepLevel(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_KeepLoaded(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NetherPortalPlayerCommand(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NetherPortalConsoleCommand(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoCombatLoot(this.flagManager, plugin));
@@ -131,6 +135,7 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_NoHunger(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_CommandWhiteList(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_CommandBlackList(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_NoStructureGrowth(this.flagManager, plugin));
             
             FlagDef_NoFlight noFlight = new FlagDef_NoFlight(this.flagManager, plugin);
             noFlight.firstTimeSetup();
@@ -165,6 +170,7 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_ExitCommand_Owner(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_ExitCommand_Members(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoExplosionDamage(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_AllowBlockExplosions(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_ProtectNamedMobs(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoBlockGravity(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_ChangeBiome(this.flagManager, plugin));
@@ -178,9 +184,12 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_NoElytra(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NotifyEnter(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NotifyExit(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_NoPotionEffects(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_SpawnReasonWhitelist(this.flagManager, plugin));
 
             this.flagManager.registerFlagDefinition(new FlagDef_ViewContainers(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_ReadLecterns(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_AllowWitherDamage(this.flagManager, plugin));
 
             this.flagManager.registerFlagDefinition(new FlagDef_TradeRequiresTrust(this.flagManager, plugin));
             
@@ -194,6 +203,13 @@ public class GPFlagsConfig {
                 }
             }
 
+            if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
+                plugin.setDSRVListener(new FlagDef_PrivateChatDiscord(this.flagManager, plugin));
+                this.flagManager.registerFlagDefinition(plugin.getDSRVListener());
+            } else {
+                this.flagManager.registerFlagDefinition(new FlagDef_PrivateChat(this.flagManager, plugin));
+            } 
+
             //try to hook into mcMMO
             try {
                 if (Bukkit.getPluginManager().getPlugin("mcMMO") != null) {
@@ -204,27 +220,29 @@ public class GPFlagsConfig {
                 }
             }
             //if failed, we just won't have those flags available
-            catch (NoClassDefFoundError ignore) {
-            }
-            
-            if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
-                plugin.setDSRVListener(new FlagDef_PrivateChatDiscord(this.flagManager, plugin));
-                this.flagManager.registerFlagDefinition(plugin.getDSRVListener());
-            } else {
-                this.flagManager.registerFlagDefinition(new FlagDef_PrivateChat(this.flagManager, plugin));
-            } 
+            catch (NoClassDefFoundError ignore) {}
+
+            // EliteMob flags
+            try {
+                if (Bukkit.getPluginManager().getPlugin("EliteMobs") != null) {
+                    this.flagManager.registerFlagDefinition(new FlagDef_NoEliteMobSpawns(this.flagManager, plugin));
+                }
+            } catch (NoClassDefFoundError ignored) {}
 
             // vault-reliant flags
-            if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
-                plugin.getCommand("buybuildtrust").setExecutor(new CommandBuyBuildTrust());
-                plugin.getCommand("buycontainertrust").setExecutor(new CommandBuyContainerTrust());
-                plugin.getCommand("buyaccesstrust").setExecutor(new CommandBuyAccessTrust());
+            try {
+                if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
+                    plugin.getCommand("buybuildtrust").setExecutor(new CommandBuyBuildTrust());
+                    plugin.getCommand("buycontainertrust").setExecutor(new CommandBuyContainerTrust());
+                    plugin.getCommand("buyaccesstrust").setExecutor(new CommandBuyAccessTrust());
+                    plugin.getCommand("buysubclaim").setExecutor(new CommandBuySubclaim());
 
-                this.flagManager.registerFlagDefinition(new FlagDef_BuyBuildTrust(this.flagManager, plugin));
-                this.flagManager.registerFlagDefinition(new FlagDef_BuyContainerTrust(this.flagManager, plugin));
-                this.flagManager.registerFlagDefinition(new FlagDef_BuyAccessTrust(this.flagManager, plugin));
-            }
-
+                    this.flagManager.registerFlagDefinition(new FlagDef_BuyBuildTrust(this.flagManager, plugin));
+                    this.flagManager.registerFlagDefinition(new FlagDef_BuyContainerTrust(this.flagManager, plugin));
+                    this.flagManager.registerFlagDefinition(new FlagDef_BuyAccessTrust(this.flagManager, plugin));
+                    this.flagManager.registerFlagDefinition(new FlagDef_BuySubclaim(this.flagManager, plugin));
+                }
+            } catch (NoClassDefFoundError ignored) {}
         } else {
             // Update world settings for flags (probably on a reload)
             this.flagManager.getFlagDefinitions().forEach(flagDefinition -> flagDefinition.updateSettings(plugin.getWorldSettingsManager()));

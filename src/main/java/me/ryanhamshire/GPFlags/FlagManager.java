@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import me.ryanhamshire.GPFlags.flags.FlagDefinition;
 import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -84,8 +85,8 @@ public class FlagManager {
      * @param args     Message parameters
      * @return Result of setting flag
      */
-    public SetFlagResult setFlag(Claim claim, FlagDefinition def, boolean isActive, String... args) {
-        return setFlag(claim.getID().toString(), def, isActive, args);
+    public SetFlagResult setFlag(Claim claim, FlagDefinition def, boolean isActive, boolean newFlag, String... args) {
+        return setFlag(claim.getID().toString(), def, isActive, newFlag, args);
     }
 
     /**
@@ -97,7 +98,7 @@ public class FlagManager {
      * @param args     Message parameters
      * @return Result of setting flag
      */
-    public SetFlagResult setFlag(String claimId, FlagDefinition def, boolean isActive, String... args) {
+    public SetFlagResult setFlag(String claimId, FlagDefinition def, boolean isActive, boolean newFlag, String... args) {
         StringBuilder parameters = new StringBuilder();
         for (String arg : args) {
             parameters.append(arg).append(" ");
@@ -125,6 +126,21 @@ public class FlagManager {
             def.incrementInstances();
         }
         claimFlags.put(key, flag);
+        if (newFlag) {
+            Claim claim;
+            try {
+                claim = GriefPrevention.instance.dataStore.getClaim(Long.parseLong(claimId));
+            } catch (Exception ignored) {
+                return result;
+            }
+            if (claim != null) {
+                if (isActive) {
+                    def.onFlagSet(claim, parameters.toString());
+                } else {
+                    def.onFlagUnset(claim);
+                }
+            }
+        }
         return result;
     }
 
@@ -231,8 +247,8 @@ public class FlagManager {
      * @param def   Flag definition to remove
      * @return Flag result
      */
-    public SetFlagResult unSetFlag(Claim claim, FlagDefinition def) {
-        return unSetFlag(claim.getID().toString(), def);
+    public SetFlagResult unSetFlag(Claim claim, FlagDefinition def, boolean newFlag) {
+        return unSetFlag(claim.getID().toString(), def, newFlag);
     }
 
     /**
@@ -242,10 +258,10 @@ public class FlagManager {
      * @param def     Flag definition to remove
      * @return Flag result
      */
-    public SetFlagResult unSetFlag(String claimID, FlagDefinition def) {
+    public SetFlagResult unSetFlag(String claimID, FlagDefinition def, boolean newFlag) {
         ConcurrentHashMap<String, Flag> claimFlags = this.flags.get(claimID);
         if (claimFlags == null || !claimFlags.containsKey(def.getName().toLowerCase())) {
-            return this.setFlag(claimID, def, false);
+            return this.setFlag(claimID, def, false, newFlag);
         } else {
             claimFlags.remove(def.getName().toLowerCase());
             return new SetFlagResult(true, def.getUnSetMessage());
@@ -267,7 +283,7 @@ public class FlagManager {
                 boolean set = yaml.getBoolean(claimID + "." + flagName + ".value", true);
                 FlagDefinition def = this.getFlagDefinitionByName(flagName);
                 if (def != null) {
-                    SetFlagResult result = this.setFlag(claimID, def, set, params);
+                    SetFlagResult result = this.setFlag(claimID, def, set, false, params);
                     if (!result.success) {
                         errors.add(result.message);
                     }
