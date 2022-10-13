@@ -14,14 +14,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.google.common.io.Files;
 
-import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GPFlags.commands.CommandBuyAccessTrust;
 import me.ryanhamshire.GPFlags.commands.CommandBuyBuildTrust;
 import me.ryanhamshire.GPFlags.commands.CommandBuyContainerTrust;
 import me.ryanhamshire.GPFlags.commands.CommandBuySubclaim;
 import me.ryanhamshire.GPFlags.flags.*;
 import me.ryanhamshire.GPFlags.util.Util;
+import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 
 public class GPFlagsConfig {
@@ -192,6 +192,7 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_AllowWitherDamage(this.flagManager, plugin));
 
             this.flagManager.registerFlagDefinition(new FlagDef_TradeRequiresTrust(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_AllowItemFrameRotation(this.flagManager, plugin));
             
             try {
                 Class.forName("org.bukkit.event.raid.RaidTriggerEvent");

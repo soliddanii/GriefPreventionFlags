@@ -195,6 +195,9 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.EnablePrivateChat, "Now preventing players outside the claim from hearing your conversations.", null);
         this.addDefault(defaults, Messages.DisablePrivateChat, "Your conversations inside this claim can now be heard anywhere.", null);
 
+        this.addDefault(defaults, Messages.EnableAllowItemFrameRotation, "Now allowing players to rotate the items inside the itemframes.", null);
+        this.addDefault(defaults, Messages.DisableAllowItemFrameRotation, "The players will be able to rotate the items inside the itemframes depending on their trust level from now on.", null);
+
         this.addDefault(defaults, Messages.EnableTradeRequiresTrust, "Now preventing players without trust permission from trading with the villagers in this claim.", null);
         this.addDefault(defaults, Messages.DisableTradeRequiresTrust, "Anyone can trade with the villagers in this claim now.", null);
 
