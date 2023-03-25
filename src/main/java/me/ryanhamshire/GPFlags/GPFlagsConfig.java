@@ -209,7 +209,14 @@ public class GPFlagsConfig {
                 this.flagManager.registerFlagDefinition(plugin.getDSRVListener());
             } else {
                 this.flagManager.registerFlagDefinition(new FlagDef_PrivateChat(this.flagManager, plugin));
-            } 
+            }
+			
+            try {
+                Class.forName("com.destroystokyo.paper.event.block.AnvilDamagedEvent");
+                this.flagManager.registerFlagDefinition(new FlagDef_NoAnvilDamage(this.flagManager, plugin));
+            }
+            // if failed, we just won't have this flag available
+            catch (ClassNotFoundException ignore) {}
 
             //try to hook into mcMMO
             try {

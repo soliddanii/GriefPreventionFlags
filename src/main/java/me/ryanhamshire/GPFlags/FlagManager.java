@@ -6,6 +6,7 @@ import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -90,7 +91,7 @@ public class FlagManager {
     }
 
     /**
-     * Set a flag for a claim
+     * Set a flag for a claim. This is called on startup to load the datastore and when setting or unsetting a flag
      *
      * @param claimId  ID of {@link Claim} which this flag will be attached to
      * @param def      Flag definition to set
@@ -99,21 +100,32 @@ public class FlagManager {
      * @return Result of setting flag
      */
     public SetFlagResult setFlag(String claimId, FlagDefinition def, boolean isActive, boolean newFlag, String... args) {
-        StringBuilder parameters = new StringBuilder();
+        StringBuilder internalParameters = new StringBuilder();
+        StringBuilder friendlyParameters = new StringBuilder();
         for (String arg : args) {
-            parameters.append(arg).append(" ");
+            friendlyParameters.append(arg).append(" ");
+            if (def.getName().equals("NoEnterPlayer") && arg.length() > 0) {
+                if (arg.length() <= 30) {
+                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayerIfCached(arg);
+                    if (offlinePlayer != null) {
+                        arg = offlinePlayer.getUniqueId().toString();
+                    }
+                }
+            }
+            internalParameters.append(arg).append(" ");
         }
-        parameters = new StringBuilder(parameters.toString().trim());
+        internalParameters = new StringBuilder(internalParameters.toString().trim());
+        friendlyParameters = new StringBuilder(friendlyParameters.toString().trim());
 
         SetFlagResult result;
         if (isActive) {
-            result = def.validateParameters(parameters.toString());
+            result = def.validateParameters(friendlyParameters.toString());
             if (!result.success) return result;
         } else {
             result = new SetFlagResult(true, def.getUnSetMessage());
         }
 
-        Flag flag = new Flag(def, parameters.toString());
+        Flag flag = new Flag(def, internalParameters.toString());
         flag.setSet(isActive);
         ConcurrentHashMap<String, Flag> claimFlags = this.flags.get(claimId);
         if (claimFlags == null) {
@@ -135,7 +147,7 @@ public class FlagManager {
             }
             if (claim != null) {
                 if (isActive) {
-                    def.onFlagSet(claim, parameters.toString());
+                    def.onFlagSet(claim, internalParameters.toString());
                 } else {
                     def.onFlagUnset(claim);
                 }
@@ -300,6 +312,16 @@ public class FlagManager {
             Util.log("Failed to save flag data.  Details:");
             e.printStackTrace();
         }
+    }
+
+    public HashSet<String> getUsedFlags() {
+        HashSet<String> usedFlags = new HashSet<>();
+        Set<String> claimIDs = this.flags.keySet();
+        for (String claimID : claimIDs) {
+            ConcurrentHashMap<String, Flag> claimFlags = this.flags.get(claimID);
+            usedFlags.addAll(claimFlags.keySet());
+        }
+        return usedFlags;
     }
 
     public String flagsToString() {

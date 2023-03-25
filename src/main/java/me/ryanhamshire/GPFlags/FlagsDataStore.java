@@ -28,7 +28,7 @@ public class FlagsDataStore {
         this.loadMessages();
     }
 
-    private void loadMessages() {
+    public void loadMessages() {
         Messages[] messageIDs = Messages.values();
         this.messages = new String[Messages.values().length];
 
@@ -38,7 +38,7 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.NoCommandPermission, "You do not have permission to use command: &7/gpflags &b{0}", "0:subcommand");
         this.addDefault(defaults, Messages.UnknownCommand, "Unknown Command: &7/gpflags &c{0}", "0:subcommand");
         this.addDefault(defaults, Messages.PlayerOnlyCommand, "Player Only Command: &7/gpflags &c{0}", "0:subcommand");
-        this.addDefault(defaults, Messages.ReloadComplete, "Reloaded config settings and flags from disk.  If you've updated your GPFlags jar file, you MUST either /reload or reboot your server to activate the update.", null);
+        this.addDefault(defaults, Messages.ReloadComplete, "Reloaded config settings, messages, and flags from disk.  If you've updated your GPFlags jar file, you MUST restart your server to activate the update.", null);
         this.addDefault(defaults, Messages.NoFlagsInThisClaim, "This claim doesn't have any flags.", null);
         this.addDefault(defaults, Messages.ThatFlagNotSet, "That flag isn't set here.", null);
         this.addDefault(defaults, Messages.InvalidFlagDefName, "Available Flags: {0}", "0:flags list");
@@ -345,6 +345,9 @@ public class FlagsDataStore {
 
         this.addDefault(defaults, Messages.EnableNotifyExit, "You will now receive notifications when a player enters this claim", null);
         this.addDefault(defaults, Messages.DisableNotifyExit, "You will no longer receive notifications when a player exits this claim", null);
+
+        this.addDefault(defaults, Messages.EnableNoAnvilDamage, "Anvils will no longer be damaged when used.", null);
+        this.addDefault(defaults, Messages.DisableNoAnvilDamage, "Anvils will once again be damaged when used.", null);
         this.addDefault(defaults, Messages.NotifyExit, "{0} has left {1}", "0: player, 1: claim name");
 
         this.addDefault(defaults, Messages.EnabledAllowWitherDamage, "Withers can now deal damage to mobs in this region", null);

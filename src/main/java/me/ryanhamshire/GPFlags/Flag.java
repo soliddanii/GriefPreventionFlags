@@ -1,6 +1,10 @@
 package me.ryanhamshire.GPFlags;
 
 import me.ryanhamshire.GPFlags.flags.FlagDefinition;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+
+import java.util.UUID;
 
 /**
  * Main flag object
@@ -27,6 +31,26 @@ public class Flag {
         if (this.parametersArray != null) return this.parametersArray;
         this.parametersArray = this.parameters.split(" ");
         return this.parametersArray;
+    }
+
+    public String getFriendlyParameters() {
+        StringBuilder builder = new StringBuilder();
+        if (flagDefinition.getName().equals("NoEnterPlayer")) {
+            for (String idOrName : getParametersArray()) {
+                if (idOrName.length() > 30) {
+                    // if over 30 characters, it's a uuid
+                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(idOrName));
+                    if (offlinePlayer.getName() != null) idOrName = offlinePlayer.getName();
+                }
+                builder.append(idOrName).append(" ");
+            }
+            return builder.toString().trim();
+        }
+        return parameters;
+    }
+
+    public String getParameters() {
+        return parameters;
     }
 
     /**

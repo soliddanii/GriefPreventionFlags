@@ -75,15 +75,19 @@ commands:
   buybuildtrust:
     description: Buy buildtrust in a claim.
     usage: /buybuildtrust
+    permission: gpflags.command.buybuildtrust
   buycontainertrust:
     description: Buy containertrust in a claim.
     usage: /buycontainertrust
+    permission: gpflags.command.buycontainertrust
   buyaccesstrust:
-    description: Buy inventorytrust in a claim.
-    usage: /buyinventorytrust
+    description: Buy accesstrust in a claim.
+    usage: /buyaccesstrust
+    permission: gpflags.command.buyaccesstrust
   buysubclaim:
     description: Buy the subclaim
     usage: /buysubclaim
+    permission: gpflags.command.buysubclaim
 permissions:
   gpflags.admin.*:
     description: Grants all administrative functionality. (depreciated)
@@ -447,6 +451,18 @@ permissions:
     default: op
     children:
       gpflags.command.gpflags: true
+  gpflags.command.buybuildtrust:
+    description: Grants tab-complete for /buybuildtrust
+    default: true
+  gpflags.command.buycontainertrust:
+    description: Grants tab-complete for /buycontainertrust
+    default: true
+  gpflags.command.buyaccesstrust:
+    description: Grants tab-complete for /buyaccesstrust
+    default: true
+  gpflags.command.buysubclaim:
+    description: Grants tab-complete for /buysubclaim
+    default: true
   gpflags.command.help:
     description: Grants permission to use /GPFlags help.
     default: true

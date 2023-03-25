@@ -1,10 +1,13 @@
 package me.ryanhamshire.GPFlags;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 import me.ryanhamshire.GPFlags.commands.*;
-import me.ryanhamshire.GPFlags.listener.RidableMoveListener;
+import me.ryanhamshire.GPFlags.flags.FlagDefinition;
+import me.ryanhamshire.GPFlags.listener.ClaimModifiedListener;
+import me.ryanhamshire.GPFlags.listener.ClaimResizeListener;
+import me.ryanhamshire.GPFlags.listener.EntityMoveListener;
+import me.ryanhamshire.GPFlags.metrics.Metrics;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Bukkit;
@@ -17,7 +20,6 @@ import github.scarsz.discordsrv.DiscordSRV;
 import me.ryanhamshire.GPFlags.flags.FlagDef_PrivateChatDiscord;
 import me.ryanhamshire.GPFlags.flags.FlagDef_ViewContainers;
 import me.ryanhamshire.GPFlags.listener.PlayerListener;
-import me.ryanhamshire.GPFlags.metrics.Metrics;
 import me.ryanhamshire.GPFlags.util.Util;
 
 
@@ -44,9 +46,18 @@ public class GPFlags extends JavaPlugin {
         this.playerListener = new PlayerListener();
         Bukkit.getPluginManager().registerEvents(playerListener, this);
         try {
-            Class.forName("org.purpurmc.purpur.event.entity.RidableMoveEvent");
-            Bukkit.getPluginManager().registerEvents(new RidableMoveListener(), this);
+            Class.forName("io.papermc.paper.event.entity.EntityMoveEvent");
+            Bukkit.getPluginManager().registerEvents(new EntityMoveListener(), this);
         } catch (ClassNotFoundException ignored) {}
+
+        try {
+            Class.forName("me.ryanhamshire.GriefPrevention.events.ClaimResizeEvent");
+            Bukkit.getPluginManager().registerEvents(new ClaimResizeListener(), this);
+        } catch (ClassNotFoundException e) {
+            Bukkit.getPluginManager().registerEvents(new ClaimModifiedListener(), this);
+        }
+
+
         this.flagsDataStore = new FlagsDataStore();
         reloadConfig();
 
@@ -78,19 +89,29 @@ public class GPFlags extends JavaPlugin {
                 }
             }
         }
-
-        new Metrics(this);
-        
+		
         // Subscribe discord srv flag listener
         if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
             DiscordSRV.api.subscribe(this.dsrvListener);
         }
+		
+        Metrics metrics = new Metrics(this, 17786);
+        Set<String> usedFlags = GPFlags.getInstance().getFlagManager().getUsedFlags();
+        Collection<FlagDefinition> defs = GPFlags.getInstance().getFlagManager().getFlagDefinitions();
+        for (FlagDefinition def : defs) {
+            metrics.addCustomChart(new Metrics.SimplePie("using_" + def.getName().toLowerCase(), () -> {
+                return String.valueOf(usedFlags.contains(def.getName().toLowerCase()));
+            }));
+        }
+
+        metrics.addCustomChart(new Metrics.SimplePie("griefprevention_version", () -> {
+            return GriefPrevention.instance.getDescription().getVersion();
+        }));
+
+        UpdateChecker.checkForUpdates(this);
 
         float finish = (float) (System.currentTimeMillis() - start) / 1000;
         Util.log("Successfully loaded in &b%.2f seconds", finish);
-        if (getDescription().getVersion().contains("SNAPSHOT")) {
-            Util.log("&eYou are running a Beta version, things may not operate as expected");
-        }
     }
 
     public void onDisable() {
