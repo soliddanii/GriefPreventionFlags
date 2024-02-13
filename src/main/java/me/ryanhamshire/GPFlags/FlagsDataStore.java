@@ -71,6 +71,11 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.DisableMobDamage, "Now blocking environmental and monster damage to passive and named mobs in this land claim.", null);
         this.addDefault(defaults, Messages.EnableMobDamage, "Stopped blocking environmental and monster damage to passive and named mobs in this land claim.", null);
 
+        this.addDefault(defaults, Messages.DisableNoMapMaking, "Map making is now allowed in this region.", null);
+        this.addDefault(defaults, Messages.EnableNoMapMaking, "Map making is now disallowed in this region.", null);
+        this.addDefault(defaults, Messages.MapMakingDisabled, "Map making has been disabled in this region.", null);
+
+
         this.addDefault(defaults, Messages.AddEnablePvP, "Disabled GriefPrevention and GPFlags player vs. player combat limitations in this land claim.", null);
         this.addDefault(defaults, Messages.RemoveEnabledPvP, "GriefPrevention and GPFlags may now limit player combat in this land claim.", null);
 
@@ -80,6 +85,12 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.PlayerCommandRequired, "Please specify a player command line(s) to execute.  You may find the %owner%, %name% and %uuid% placeholders useful.  Separate multiple command lines with a semicolon (;).\"", null);
         this.addDefault(defaults, Messages.AddedEnterMessage, "Players entering this land claim will now receive this message:&b {0}", "0: message to send");
         this.addDefault(defaults, Messages.RemovedEnterMessage, "Players entering this land claim will not receive any message.", null);
+
+        this.addDefault(defaults, Messages.AddedEnterActionbar, "Players entering this land claim will now receive this actionbar:&b {0}", "0: message to send");
+        this.addDefault(defaults, Messages.RemovedEnterActionbar, "Players entering this land claim will not receive any actionbar.", null);
+        this.addDefault(defaults, Messages.ActionbarRequired, "Please specify an actionbar to send.", null);
+        this.addDefault(defaults, Messages.AddedExitActionbar, "Players exiting this land claim will now receive this actionbar:&b {0}", "0: message to send");
+        this.addDefault(defaults, Messages.RemovedExitActionbar, "Players exiting this land claim will not receive any actionbar.", null);
 
         this.addDefault(defaults, Messages.AddedExitMessage, "Players exiting this land claim will now receive this message:&b {0}", "0: message to send");
         this.addDefault(defaults, Messages.RemovedExitMessage, "Players exiting this land claim will not receive any message.", null);
@@ -210,6 +221,12 @@ public class FlagsDataStore {
 
         this.addDefault(defaults, Messages.EnableNoGrowth, "Blocks will no longer grow in this area", null);
         this.addDefault(defaults, Messages.DisableNoGrowth, "Blocks will now continue to grow in this area", null);
+
+        this.addDefault(defaults, Messages.EnableNoBlockFade, "Blocks will no longer fade in this area", null);
+        this.addDefault(defaults, Messages.DisableNoBlockFade, "Blocks will continue to fade in this area", null);
+
+        this.addDefault(defaults, Messages.EnableNoCoralDeath, "Coral will no longer die in this area", null);
+        this.addDefault(defaults, Messages.DisableNoCoralDeath, "Coral will continue to die in this area", null);
 
         this.addDefault(defaults, Messages.ExitFlightDisabled, "Flight disabled", null);
         this.addDefault(defaults, Messages.EnterFlightEnabled, "Flight enabled", null);
@@ -355,6 +372,8 @@ public class FlagsDataStore {
         this.addDefault(defaults, Messages.EnableNoEliteMobSpawns, "Now preventing elite mob spawns in this region.", null);
         this.addDefault(defaults, Messages.DisableNoEliteMobSpawns, "No longer preventing elite mob spawns in this region.", null);
 
+        this.addDefault(defaults, Messages.EnabledAllowInfest, "Silverfish can now infest blocks in this area", null);
+        this.addDefault(defaults, Messages.DisabledAllowInfest, "Silverfish can no longer infest blocks in this area", null);
 
         this.addDefault(defaults, Messages.EnabledNoPotionEffects, "Potion effects are now disabled in this region.", null);
         this.addDefault(defaults, Messages.DisabledNoPotionEffects, "Potion effects are now enabled in this region.", null);

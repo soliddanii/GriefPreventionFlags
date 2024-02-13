@@ -26,8 +26,13 @@ public class FlagDef_ProtectNamedMobs extends FlagDefinition {
 
         Flag flag = this.getFlagInstanceAtLocation(entity.getLocation(), null);
         if (flag == null) return;
-        if (entity.getType() == EntityType.PLAYER) return;
         if (entity.getCustomName() == null) return;
+
+        EntityType eType = entity.getType();
+        if (eType == EntityType.PLAYER) return;
+        if (eType == EntityType.ARMOR_STAND) return;
+        if (eType == EntityType.ITEM_FRAME) return;
+        if (eType == EntityType.GLOW_ITEM_FRAME) return;
         if (MythicMobsHook.isMythicMob(entity)) return;
 
         Entity damager = event.getDamager();
@@ -38,8 +43,7 @@ public class FlagDef_ProtectNamedMobs extends FlagDefinition {
 
         Player player = (Player) damager;
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(entity.getLocation(), false, null);
-        if (claim == null) return;
-        if (claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Inventory) return;
+        if (claim != null && claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Inventory) return;
         event.setCancelled(true);
     }
 

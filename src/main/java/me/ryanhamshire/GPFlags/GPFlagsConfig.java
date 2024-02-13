@@ -110,7 +110,10 @@ public class GPFlagsConfig {
             FlagDef_AllowPvP allowPvPDef = new FlagDef_AllowPvP(this.flagManager, plugin);
             allowPvPDef.firstTimeSetup();
             this.flagManager.registerFlagDefinition(allowPvPDef);
-            
+
+            this.flagManager.registerFlagDefinition(new FlagDef_EnterActionbar(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_ExitActionbar(this.flagManager, plugin));
+
             this.flagManager.registerFlagDefinition(new FlagDef_EnterMessage(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_ExitMessage(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_EnterCommand(this.flagManager, plugin));
@@ -125,6 +128,7 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_NetherPortalPlayerCommand(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NetherPortalConsoleCommand(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoCombatLoot(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_NoMapMaking(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoMobSpawns(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoPlayerDamage(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoPlayerDamageByMonster(this.flagManager, plugin));
@@ -136,7 +140,10 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_CommandWhiteList(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_CommandBlackList(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoStructureGrowth(this.flagManager, plugin));
-            
+            this.flagManager.registerFlagDefinition(new FlagDef_NoBlockFade(this.flagManager, plugin));            this.flagManager.registerFlagDefinition(new FlagDef_NoBlockFade(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_AllowInfest(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_NoCoralDeath(this.flagManager, plugin));
+
             FlagDef_NoFlight noFlight = new FlagDef_NoFlight(this.flagManager, plugin);
             noFlight.firstTimeSetup();
             this.flagManager.registerFlagDefinition(noFlight);

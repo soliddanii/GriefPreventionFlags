@@ -44,12 +44,24 @@ public class FlagDef_EnterMessage extends PlayerMovementFlagDefinition {
             if (claimFrom.parent == claimTo && (flagFromExit == null || !flagFromExit.getSet())) {
                 return;
             }
+
+            // moving between sub-claims and the sub claim does not have its own enter message
+            Flag flagFrom = plugin.getFlagManager().getFlag(claimFrom, this);
+            if (claimTo.parent == claimFrom.parent && (flagTo == null || !flagTo.getSet()) && (flagFrom == null || !flagFrom.getSet())) {
+                return;
+            }
+
+            // moving to different claim with the same message
+            if (flagFrom != null && flagTo != null && flagFrom.parameters.equals(flagTo.parameters)) {
+                if (claimFrom.getOwnerName().equals(claimTo.getOwnerName())) return;
+            }
         }
 
         String message = flag.parameters;
         if (claimTo != null) {
-            message = message.replace("%owner%", claimTo.getOwnerName()).replace("%name%", player.getName());
+            message = message.replace("%owner%", claimTo.getOwnerName());
         }
+        message = message.replace("%name%", player.getName());
 
         Util.sendClaimMessage(player, TextMode.Info, prefix + message);
     }

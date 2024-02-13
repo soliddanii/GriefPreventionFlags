@@ -8,10 +8,8 @@ import me.ryanhamshire.GPFlags.listener.ClaimModifiedListener;
 import me.ryanhamshire.GPFlags.listener.ClaimResizeListener;
 import me.ryanhamshire.GPFlags.listener.EntityMoveListener;
 import me.ryanhamshire.GPFlags.metrics.Metrics;
-import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -57,7 +55,6 @@ public class GPFlags extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new ClaimModifiedListener(), this);
         }
 
-
         this.flagsDataStore = new FlagsDataStore();
         reloadConfig();
 
@@ -75,26 +72,14 @@ public class GPFlags extends JavaPlugin {
         getCommand("unsetdefaultclaimflag").setExecutor(new CommandUnsetDefaultClaimFlag());
         getCommand("unsetserverflag").setExecutor(new CommandUnsetServerFlag());
         getCommand("unsetworldflag").setExecutor(new CommandUnsetWorldFlag());
+        getCommand("bulksetflag").setExecutor(new CommandBulkSetFlag());
+        getCommand("bulkunsetflag").setExecutor(new CommandBulkUnsetFlag());
 
-        Collection<Claim> claims = GriefPrevention.instance.dataStore.getClaims();
-        for (Claim claim : claims) {
-            if (GPFlags.getInstance().getFlagManager().getFlag(claim, "AllowBlockExplosions") != null) {
-                claim.areExplosivesAllowed = true;
-            }
-            if (GPFlags.getInstance().getFlagManager().getFlag(claim, "KeepLoaded") != null) {
-                ArrayList<Chunk> chunks = claim.getChunks();
-                for (Chunk chunk : chunks) {
-                    chunk.setForceLoaded(true);
-                    chunk.load(true);
-                }
-            }
-        }
-		
         // Subscribe discord srv flag listener
         if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
             DiscordSRV.api.subscribe(this.dsrvListener);
         }
-		
+        
         Metrics metrics = new Metrics(this, 17786);
         Set<String> usedFlags = GPFlags.getInstance().getFlagManager().getUsedFlags();
         Collection<FlagDefinition> defs = GPFlags.getInstance().getFlagManager().getFlagDefinitions();
@@ -108,7 +93,9 @@ public class GPFlags extends JavaPlugin {
             return GriefPrevention.instance.getDescription().getVersion();
         }));
 
-        UpdateChecker.checkForUpdates(this);
+        try {
+            UpdateChecker.checkForUpdates(this);
+        } catch (Error ignored) {}
 
         float finish = (float) (System.currentTimeMillis() - start) / 1000;
         Util.log("Successfully loaded in &b%.2f seconds", finish);

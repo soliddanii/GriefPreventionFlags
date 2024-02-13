@@ -114,6 +114,11 @@ public class Util {
         }
     }
 
+    /**
+     *
+     * @param player the player to check
+     * @return if the player is spectator/creative or has bypass perms to fly anywhere
+     */
     public static boolean canFly(Player player) {
         GameMode mode = player.getGameMode();
         return mode == GameMode.SPECTATOR || mode == GameMode.CREATIVE || player.hasPermission("gpflags.bypass.fly");
@@ -447,11 +452,36 @@ public class Util {
         return Collections.emptyList();
     }
 
+    public static int getMaxHeight(Location l) {
+        return getMaxHeight(l.getWorld());
+    }
+
+    public static int getMinHeight(Location l) {
+        return getMinHeight(l.getWorld());
+    }
+
+    public static int getMaxHeight(World w) {
+        try {
+            return w.getMaxHeight();
+        } catch (NoSuchMethodError e) {
+            return 256;
+        }
+    }
+
+    public static int getMinHeight(World w) {
+        try {
+            return w.getMinHeight();
+        } catch (NoSuchMethodError e) {
+            return 0;
+        }
+    }
+
     public static Location getInBoundsLocation(Player p) {
         Location loc = p.getLocation();
         World world = loc.getWorld();
-        if (loc.getBlockY() >= world.getMaxHeight()) {
-            loc.setY(world.getMaxHeight() - 1);
+        int maxHeight = Util.getMaxHeight(world);
+        if (loc.getBlockY() >= maxHeight) {
+            loc.setY(maxHeight - 1);
         }
         return loc;
     }
@@ -462,7 +492,7 @@ public class Util {
         return c.getOwnerID().equals(p.getUniqueId());
     }
 
-    public static boolean shouldBypass(Player p, Claim c, String basePerm) {
+    public static boolean shouldBypass(@NotNull Player p, @Nullable Claim c, @NotNull String basePerm) {
         if (p.hasPermission(basePerm)) return true;
         if (c == null) return p.hasPermission(basePerm + ".nonclaim");
         if (c.getOwnerID() == null && p.hasPermission(basePerm + ".adminclaim")) return true;

@@ -8,6 +8,8 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class FlagDef_NotifyExit extends PlayerMovementFlagDefinition {
 
     public FlagDef_NotifyExit(FlagManager manager, GPFlags plugin) {
@@ -23,10 +25,10 @@ public class FlagDef_NotifyExit extends PlayerMovementFlagDefinition {
         // get specific ExitMessage flag of origin claim and EnterMessage flag of destination claim
         Flag flagFrom = plugin.getFlagManager().getFlag(claimFrom, this);
         Flag flagToEnter = plugin.getFlagManager().getFlag(claimTo, plugin.getFlagManager().getFlagDefinitionByName("NotifyEnter"));
-        if (claimTo == null) return;
+
 
         // Don't repeat the exit message of a claim in certain cases
-        if (claimFrom != null) {
+        if (claimFrom != null && claimTo != null) {
             // moving to parent claim, and the sub claim does not have its own exit message
             if (claimFrom.parent == claimTo && (flagFrom == null || !flagFrom.getSet())) {
                 return;
@@ -37,7 +39,10 @@ public class FlagDef_NotifyExit extends PlayerMovementFlagDefinition {
             }
         }
 
-        Player owner = Bukkit.getPlayer(claimTo.getOwnerID());
+        if (claimFrom == null) return;
+        UUID ownerID = claimFrom.getOwnerID();
+        if (ownerID == null) return;
+        Player owner = Bukkit.getPlayer(ownerID);
         if (owner == null) return;
         if (owner.getName().equals(player.getName())) return;
         if (!owner.canSee(player)) return;
@@ -45,9 +50,9 @@ public class FlagDef_NotifyExit extends PlayerMovementFlagDefinition {
         if (player.hasPermission("gpflags.bypass.notifyexit")) return;
         String param = flag.parameters;
         if (param == null || param.isEmpty()) {
-            param = "claim " + claimTo.getID();
+            param = "claim " + claimFrom.getID();
         }
-        Util.sendClaimMessage(owner, TextMode.Info, Messages.NotifyEnter, player.getName(), param);
+        Util.sendClaimMessage(owner, TextMode.Info, Messages.NotifyExit, player.getName(), param);
     }
 
 

@@ -1,24 +1,15 @@
 package me.ryanhamshire.GPFlags.flags;
 
-import me.ryanhamshire.GPFlags.Flag;
-import me.ryanhamshire.GPFlags.FlagManager;
-import me.ryanhamshire.GPFlags.GPFlags;
-import me.ryanhamshire.GPFlags.MessageSpecifier;
-import me.ryanhamshire.GPFlags.Messages;
-import me.ryanhamshire.GPFlags.SetFlagResult;
-import me.ryanhamshire.GPFlags.TextMode;
+import me.ryanhamshire.GPFlags.*;
 import me.ryanhamshire.GPFlags.util.Util;
 import me.ryanhamshire.GriefPrevention.Claim;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class FlagDef_ExitMessage extends PlayerMovementFlagDefinition {
+public class FlagDef_ExitActionbar extends PlayerMovementFlagDefinition {
 
-    private final String prefix;
-
-    public FlagDef_ExitMessage(FlagManager manager, GPFlags plugin) {
+    public FlagDef_ExitActionbar(FlagManager manager, GPFlags plugin) {
         super(manager, plugin);
-        this.prefix = plugin.getFlagsDataStore().getMessage(Messages.EnterExitPrefix);
     }
 
     @Override
@@ -29,7 +20,7 @@ public class FlagDef_ExitMessage extends PlayerMovementFlagDefinition {
 
         // get specific ExitMessage flag of origin claim and EnterMessage flag of destination claim
         Flag flagFrom = plugin.getFlagManager().getFlag(claimFrom, this);
-        Flag flagToEnter = plugin.getFlagManager().getFlag(claimTo, plugin.getFlagManager().getFlagDefinitionByName("EnterMessage"));
+        Flag flagTo = plugin.getFlagManager().getFlag(claimTo, this);
 
         // Don't repeat the exit message of a claim in certain cases
         if (claimFrom != null && claimTo != null) {
@@ -37,20 +28,20 @@ public class FlagDef_ExitMessage extends PlayerMovementFlagDefinition {
             if (claimFrom.parent == claimTo && (flagFrom == null || !flagFrom.getSet())) {
                 return;
             }
-            // moving to sub-claim, and the sub claim does not have its own enter message
-            if (claimTo.parent == claimFrom && (flagToEnter == null || !flagToEnter.getSet())) {
-                return;
-            }
-
-            // moving between sub-claims and the sub claim does not have its own enter message
-            Flag flagTo = plugin.getFlagManager().getFlag(claimTo, this);
-            if (claimTo.parent == claimFrom.parent && (flagTo == null || !flagTo.getSet()) && (flagFrom == null || !flagFrom.getSet())) {
+            // moving to sub-claim, and the sub claim does not have its own exit message
+            if (claimTo.parent == claimFrom && (flagTo == null || !flagTo.getSet())) {
                 return;
             }
 
             // moving to different claim with the same message
             if (flagTo != null && flagTo.parameters.equals(flagFrom.parameters)) {
                 if (claimFrom.getOwnerName().equals(claimTo.getOwnerName())) return;
+            }
+
+            // moving to different claim with an enteractionbar
+            Flag flagToEnter = plugin.getFlagManager().getFlag(claimTo, plugin.getFlagManager().getFlagDefinitionByName("EnterActionbar"));
+            if (flagToEnter != null) {
+                return;
             }
         }
 
@@ -60,18 +51,18 @@ public class FlagDef_ExitMessage extends PlayerMovementFlagDefinition {
         }
         message = message.replace("%name%", player.getName());
 
-        Util.sendClaimMessage(player, TextMode.Info, prefix + message);
+        player.sendActionBar(Util.getColString(message));
     }
 
     @Override
     public String getName() {
-        return "ExitMessage";
+        return "ExitActionbar";
     }
 
     @Override
     public SetFlagResult validateParameters(String parameters) {
         if (parameters.isEmpty()) {
-            return new SetFlagResult(false, new MessageSpecifier(Messages.MessageRequired));
+            return new SetFlagResult(false, new MessageSpecifier(Messages.ActionbarRequired));
         }
 
         return new SetFlagResult(true, this.getSetMessage(parameters));
@@ -79,12 +70,12 @@ public class FlagDef_ExitMessage extends PlayerMovementFlagDefinition {
 
     @Override
     public MessageSpecifier getSetMessage(String parameters) {
-        return new MessageSpecifier(Messages.AddedExitMessage, parameters);
+        return new MessageSpecifier(Messages.AddedExitActionbar, parameters);
     }
 
     @Override
     public MessageSpecifier getUnSetMessage() {
-        return new MessageSpecifier(Messages.RemovedExitMessage);
+        return new MessageSpecifier(Messages.RemovedExitActionbar);
     }
 
 }

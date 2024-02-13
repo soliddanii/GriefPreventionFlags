@@ -25,8 +25,11 @@ public class FlagDef_ExitCommand extends PlayerMovementFlagDefinition {
         if (lastLocation == null) return;
         Flag flag = this.getFlagInstanceAtLocation(lastLocation, player);
         if (flag == null) return;
-
-        if (flag == this.getFlagInstanceAtLocation(to, player)) return;
+        Flag newFlag = this.getFlagInstanceAtLocation(to, player);
+        if (flag == newFlag) return;
+        if (newFlag != null && flag.parameters.equals(newFlag.parameters)) {
+            if (claimFrom != null && claimTo != null && claimFrom.getOwnerName().equals(claimTo.getOwnerName())) return;
+        }
 
         if (player.hasPermission("gpflags.bypass.exitcommand")) return;
 

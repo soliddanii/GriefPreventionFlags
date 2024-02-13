@@ -78,19 +78,6 @@ public class FlagManager {
     }
 
     /**
-     * Set a flag for a claim
-     *
-     * @param claim    {@link Claim} which this flag will be attached to
-     * @param def      Flag definition to set
-     * @param isActive Whether the flag will be active or not
-     * @param args     Message parameters
-     * @return Result of setting flag
-     */
-    public SetFlagResult setFlag(Claim claim, FlagDefinition def, boolean isActive, boolean newFlag, String... args) {
-        return setFlag(claim.getID().toString(), def, isActive, newFlag, args);
-    }
-
-    /**
      * Set a flag for a claim. This is called on startup to load the datastore and when setting or unsetting a flag
      *
      * @param claimId  ID of {@link Claim} which this flag will be attached to
@@ -99,17 +86,21 @@ public class FlagManager {
      * @param args     Message parameters
      * @return Result of setting flag
      */
-    public SetFlagResult setFlag(String claimId, FlagDefinition def, boolean isActive, boolean newFlag, String... args) {
+    public SetFlagResult setFlag(String claimId, FlagDefinition def, boolean isActive, String... args) {
         StringBuilder internalParameters = new StringBuilder();
         StringBuilder friendlyParameters = new StringBuilder();
         for (String arg : args) {
             friendlyParameters.append(arg).append(" ");
             if (def.getName().equals("NoEnterPlayer") && arg.length() > 0) {
                 if (arg.length() <= 30) {
-                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayerIfCached(arg);
-                    if (offlinePlayer != null) {
-                        arg = offlinePlayer.getUniqueId().toString();
-                    }
+                    OfflinePlayer offlinePlayer;
+                    try {
+                        offlinePlayer = Bukkit.getOfflinePlayerIfCached(arg);
+                        if (offlinePlayer != null) {
+                            arg = offlinePlayer.getUniqueId().toString();
+                        }
+                    } catch (NoSuchMethodError ignored) {}
+
                 }
             }
             internalParameters.append(arg).append(" ");
@@ -138,19 +129,17 @@ public class FlagManager {
             def.incrementInstances();
         }
         claimFlags.put(key, flag);
-        if (newFlag) {
-            Claim claim;
-            try {
-                claim = GriefPrevention.instance.dataStore.getClaim(Long.parseLong(claimId));
-            } catch (Exception ignored) {
-                return result;
-            }
-            if (claim != null) {
-                if (isActive) {
-                    def.onFlagSet(claim, internalParameters.toString());
-                } else {
-                    def.onFlagUnset(claim);
-                }
+        Claim claim;
+        try {
+            claim = GriefPrevention.instance.dataStore.getClaim(Long.parseLong(claimId));
+        } catch (Exception ignored) {
+            return result;
+        }
+        if (claim != null) {
+            if (isActive) {
+                def.onFlagSet(claim, internalParameters.toString());
+            } else {
+                def.onFlagUnset(claim);
             }
         }
         return result;
@@ -208,6 +197,19 @@ public class FlagManager {
                 return claimFlags.get(flagString);
             }
         }
+        Claim parentClaim = null;
+        try {
+            parentClaim = GriefPrevention.instance.dataStore.getClaim(Long.parseLong(claimID)).parent;
+        } catch (Exception ignored) {}
+        if (parentClaim != null) {
+            String parentClaimID =  parentClaim.getID().toString();
+            ConcurrentHashMap<String, Flag> parentClaimFlags = this.flags.get(parentClaimID);
+            if (parentClaimFlags != null) {
+                if (parentClaimFlags.containsKey(flagString)) {
+                    return parentClaimFlags.get(flagString);
+                }
+            }
+        }
         if (claimID.equalsIgnoreCase("everywhere") || worlds.contains(claimID)) return null;
         ConcurrentHashMap<String, Flag> defaultFlags = this.flags.get(DEFAULT_FLAG_ID);
         if (defaultFlags != null) {
@@ -259,8 +261,8 @@ public class FlagManager {
      * @param def   Flag definition to remove
      * @return Flag result
      */
-    public SetFlagResult unSetFlag(Claim claim, FlagDefinition def, boolean newFlag) {
-        return unSetFlag(claim.getID().toString(), def, newFlag);
+    public SetFlagResult unSetFlag(Claim claim, FlagDefinition def) {
+        return unSetFlag(claim.getID().toString(), def);
     }
 
     /**
@@ -270,10 +272,10 @@ public class FlagManager {
      * @param def     Flag definition to remove
      * @return Flag result
      */
-    public SetFlagResult unSetFlag(String claimID, FlagDefinition def, boolean newFlag) {
+    public SetFlagResult unSetFlag(String claimID, FlagDefinition def) {
         ConcurrentHashMap<String, Flag> claimFlags = this.flags.get(claimID);
         if (claimFlags == null || !claimFlags.containsKey(def.getName().toLowerCase())) {
-            return this.setFlag(claimID, def, false, newFlag);
+            return this.setFlag(claimID, def, false);
         } else {
             claimFlags.remove(def.getName().toLowerCase());
             return new SetFlagResult(true, def.getUnSetMessage());
@@ -295,7 +297,7 @@ public class FlagManager {
                 boolean set = yaml.getBoolean(claimID + "." + flagName + ".value", true);
                 FlagDefinition def = this.getFlagDefinitionByName(flagName);
                 if (def != null) {
-                    SetFlagResult result = this.setFlag(claimID, def, set, false, params);
+                    SetFlagResult result = this.setFlag(claimID, def, set, params);
                     if (!result.success) {
                         errors.add(result.message);
                     }
