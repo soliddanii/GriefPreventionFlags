@@ -6,7 +6,7 @@
 
     <groupId>me.ryanhamshire</groupId>
     <artifactId>GPFlags</artifactId>
-    <version>5.12.11-SNAPSHOT</version>
+    <version>5.12.12-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -74,10 +74,6 @@
                 <exclusion>
                     <groupId>com.sk89q.worldguard</groupId>
                     <artifactId>worldguard-legacy</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.maven.scm</groupId>
-                    <artifactId>maven-scm-provider-gitexe</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
