@@ -2,20 +2,10 @@ package me.ryanhamshire.GPFlags.flags;
 
 import java.util.*;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.damage.DamageSource;
-import org.bukkit.damage.DamageType;
+import me.ryanhamshire.GPFlags.util.MessagingUtil;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Tameable;
-import org.bukkit.entity.ThrownPotion;
-import org.bukkit.entity.Trident;
+import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -38,11 +28,14 @@ import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
 import me.ryanhamshire.GPFlags.TextMode;
 import me.ryanhamshire.GPFlags.WorldSettings;
-import me.ryanhamshire.GPFlags.util.Util;
+
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.events.PreventPvPEvent;
 
 public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
+
+    private final NamespacedKey infinity = NamespacedKey.minecraft("infinity");
+    private final Enchantment infinityEnchantment = Registry.ENCHANTMENT.get(infinity);
     
     // For EntityShootBow event being called multiple times when using the enchantment Multishot
     private Set<Player> justFiredCrossbow = Collections.newSetFromMap(new WeakHashMap<>());
@@ -54,16 +47,16 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
     private static final Set<PotionEffectType> POSITIVE_EFFECTS = new HashSet<>(Arrays.asList(
             PotionEffectType.ABSORPTION,
             PotionEffectType.CONDUIT_POWER,
-            PotionEffectType.DAMAGE_RESISTANCE,
+            Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft("resistance")),
             PotionEffectType.DOLPHINS_GRACE,
-            PotionEffectType.FAST_DIGGING,
+            Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft("haste")),
             PotionEffectType.FIRE_RESISTANCE,
-            PotionEffectType.HEAL,
+            Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft("instant_health")),
             PotionEffectType.HEALTH_BOOST,
             PotionEffectType.HERO_OF_THE_VILLAGE,
-            PotionEffectType.INCREASE_DAMAGE,
+            Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft("strength")),
             PotionEffectType.INVISIBILITY,
-            PotionEffectType.JUMP,
+            Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft("jump_boost")),
             PotionEffectType.LUCK,
             PotionEffectType.NIGHT_VISION,
             PotionEffectType.REGENERATION,
@@ -82,7 +75,7 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
             if (this.getFlagInstanceAtLocation(lastLocation, player) != null) {
                 if (!settings.pvpRequiresClaimFlag) return;
                 if (!settings.pvpExitClaimMessageEnabled) return;
-                Util.sendClaimMessage(player, TextMode.Success, settings.pvpExitClaimMessage);
+                MessagingUtil.sendMessage(player, TextMode.Success + settings.pvpExitClaimMessage);
             }
             return;
         }
@@ -92,7 +85,7 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
         if (!settings.pvpRequiresClaimFlag) return;
         if (!settings.pvpEnterClaimMessageEnabled) return;
 
-        Util.sendClaimMessage(player, TextMode.Warn, settings.pvpEnterClaimMessage);
+        MessagingUtil.sendMessage(player, TextMode.Warn + settings.pvpEnterClaimMessage);
     }
 
     // bandaid
@@ -111,15 +104,20 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
         WorldSettings settings = this.settingsManager.get(player.getWorld());
         if (!settings.pvpRequiresClaimFlag) return;
         if (!settings.pvpEnterClaimMessageEnabled) return;
-        Util.sendClaimMessage(player, TextMode.Warn, settings.pvpEnterClaimMessage);
+        MessagingUtil.sendMessage(player, TextMode.Warn + settings.pvpEnterClaimMessage);
 
     }
 
+    /***
+     * Depending on the claim flag, possibly cancels GP from preventing PvP.
+     * @param event GP found a PVP event within a claim and will prevent it
+     */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPreventPvP(PreventPvPEvent event) {
-        Flag flag = this.getFlagInstanceAtLocation(event.getClaim().getLesserBoundaryCorner(), null);
-        if (flag == null) return;
-        event.setCancelled(true);
+        Flag defenderFlag = this.getFlagInstanceAtLocation(event.getDefender().getLocation(), null);
+        // If AllowPvp is enabled,
+        // Don't let GP protect the player.
+        if (defenderFlag != null) event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
@@ -146,7 +144,7 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
         if (!(projectileSource instanceof Player)) return;
         Player thrower = (Player) projectileSource;
 
-        // ignore positive potions
+        // ignore potions without any negative effects
         Collection<PotionEffect> effects = potion.getEffects();
         boolean hasNegativeEffect = false;
         for (PotionEffect effect : effects) {
@@ -155,22 +153,21 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
                 break;
             }
         }
-
         if (!hasNegativeEffect) return;
 
         // if not in a no-pvp world, we don't care
         WorldSettings settings = this.settingsManager.get(potion.getWorld());
         if (!settings.pvpRequiresClaimFlag) return;
 
-        // ignore potions not effecting players or pets
+        // ignore potions not affecting players or pets
         if (event instanceof PotionSplashEvent) {
             boolean hasProtectableTarget = false;
-            for (LivingEntity effected : ((PotionSplashEvent) event).getAffectedEntities()) {
-                if (effected instanceof Player && effected != thrower) {
+            for (LivingEntity affected : ((PotionSplashEvent) event).getAffectedEntities()) {
+                if (affected instanceof Player && affected != thrower) {
                     hasProtectableTarget = true;
                     break;
-                } else if (effected instanceof Tameable) {
-                    Tameable pet = (Tameable) effected;
+                } else if (affected instanceof Tameable) {
+                    Tameable pet = (Tameable) affected;
                     if (pet.isTamed() && pet.getOwner() != null) {
                         hasProtectableTarget = true;
                         break;
@@ -186,7 +183,7 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
 
         // otherwise disallow
         ((Cancellable) event).setCancelled(true);
-        Util.sendClaimMessage(thrower, TextMode.Err, settings.pvpDeniedMessage);
+        MessagingUtil.sendMessage(thrower, TextMode.Err + settings.pvpDeniedMessage);
     }
 
     // when an entity is set on fire
@@ -202,65 +199,65 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
         this.handleEntityDamageEvent(event, true, event.getDamager(), event.getEntity(), event.getCause());
     }
 
-    private void handleEntityDamageEvent(Cancellable event, boolean sendErrorMessagesToPlayers, Entity damager, Entity defender, DamageCause cause) {
-        // if the pet is not tamed, we don't care
-        if (defender.getType() != EntityType.PLAYER) {
-            if (defender instanceof Tameable) {
-                Tameable pet = (Tameable) defender;
-                if (!pet.isTamed() || pet.getOwner() == null) return;
-            }
-        }
+    public boolean isPlayerOrPet(Entity entity) {
+        if (entity instanceof Player) return true;
+        if (!(entity instanceof Tameable)) return false;
+        Wolf wolf = (Wolf) entity;
+        if (wolf.isTamed()) return true;
+        return false;
+    }
 
+    private void handleEntityDamageEvent(Cancellable event, boolean sendErrorMessagesToPlayers, Entity attacker, Entity defender, DamageCause cause) {
         //if not in a no-pvp world, we don't care
-        WorldSettings settings = this.settingsManager.get(damager.getWorld());
+        WorldSettings settings = this.settingsManager.get(attacker.getWorld());
         if (!settings.pvpRequiresClaimFlag) return;
 
         Projectile projectile = null;
-        if (damager instanceof Projectile) {
-            projectile = (Projectile) damager;
+        if (attacker instanceof Projectile) {
+            projectile = (Projectile) attacker;
             if (projectile.getShooter() instanceof Player) {
-                damager = (Player) projectile.getShooter();
+                attacker = (Player) projectile.getShooter();
             }
         }
 
-        if (damager.getType() != EntityType.PLAYER) return;
+        // both attacker and defender need to be a player or a dog
+        if (!isPlayerOrPet(attacker)) return;
+        if (!isPlayerOrPet(defender)) return;
 
-        //if in a flagged-for-pvp area, allow
-        Flag flag = this.getFlagInstanceAtLocation(damager.getLocation(), null);
+        // If both players are in an allowPvp area, let them get hurt
+        Flag flag = this.getFlagInstanceAtLocation(attacker.getLocation(), null);
         Flag flag2 = this.getFlagInstanceAtLocation(defender.getLocation(), null);
         if (flag != null && flag2 != null) return;
 
-        //if damaged entity is not a player, ignore, this is a PVP flag
-        if (defender.getType() != EntityType.PLAYER) return;
-        // Enderpearl are considered as FALL with event.getEntityType() = player...
+        // Enderpearl are considered as FALL with event.getEntityType() = player
+        // so we allow them to get hurt
         if (cause == DamageCause.FALL) return;
 
-        //otherwise disallow
+        // At this point, we know we will prevent the damage
         event.setCancelled(true);
+        if (sendErrorMessagesToPlayers && attacker instanceof Player) {
+            MessagingUtil.sendMessage(attacker, TextMode.Err + settings.pvpDeniedMessage);
+        }
 
         // give the shooter back their projectile
-        if (projectile != null) {
-            if (projectile.hasMetadata("item-stack")) {
-                MetadataValue meta = projectile.getMetadata("item-stack").get(0);
-                if (meta != null) {
-                    ItemStack item = ((ItemStack) meta.value());
-                    assert item != null;
-                    if (item.getType() != Material.AIR) {
-                        item.setAmount(1);
-                        ((Player) damager).getInventory().addItem(item);
-                    }
+        if (projectile == null) return;
+        if (projectile.hasMetadata("item-stack")) {
+            MetadataValue meta = projectile.getMetadata("item-stack").get(0);
+            if (meta != null) {
+                ItemStack item = ((ItemStack) meta.value());
+                if (item != null && item.getType() != Material.AIR) {
+                    item.setAmount(1);
+                    ((Player) attacker).getInventory().addItem(item);
                 }
-                // Remove metadata in case the projectile is to damage multiple entities
-                // i.e. firework aoe
-                projectile.removeMetadata("item-stack", GPFlags.getInstance());
             }
-            if (!(projectile instanceof Trident)) {
-                projectile.remove();
-            }
+            // Remove metadata in case the projectile is to damage multiple entities
+            // i.e. firework aoe
+            projectile.removeMetadata("item-stack", GPFlags.getInstance());
         }
-        if (sendErrorMessagesToPlayers && damager instanceof Player) {
-            Util.sendClaimMessage(damager, TextMode.Err, settings.pvpDeniedMessage);
+        if (!(projectile instanceof Trident)) {
+            projectile.remove();
         }
+
     }
     
     @EventHandler
@@ -271,16 +268,17 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
             ItemStack bow = event.getBow();
             if (bow == null) return;
             ItemMeta meta = bow.getItemMeta();
-            if (meta != null && meta.hasEnchant(Enchantment.ARROW_INFINITE)) return;
-            if (Util.isRunningMinecraft(1, 14) && bow.getType() == Material.CROSSBOW) {
+            if (meta != null && meta.hasEnchant(infinityEnchantment)) return;
+            if (bow.getType() == Material.CROSSBOW) {
                 if (bow.getItemMeta() != null) {
                     List<ItemStack> projs = ((CrossbowMeta) bow.getItemMeta()).getChargedProjectiles();
+                    if (projs.size() == 0) return;
                     projectile = projs.get(0);
-                    
+
                     // EntityShootBowEvent is still fired for each projectile
                     // Only add the metadata to the first projectile launched within a short time
-                    if(projs.size() > 1) {
-                        if(justFiredCrossbow.contains(player)) return;
+                    if (projs.size() > 1) {
+                        if (justFiredCrossbow.contains(player)) return;
                         justFiredCrossbow.add(player);
                         Bukkit.getScheduler().runTaskLater(GPFlags.getInstance(), () -> {
                             justFiredCrossbow.remove(player);
@@ -337,6 +335,6 @@ public class FlagDef_AllowPvP extends PlayerMovementFlagDefinition {
 
     @Override
     public List<FlagType> getFlagType() {
-        return Collections.singletonList(FlagType.CLAIM);
+        return Arrays.asList(FlagType.CLAIM, FlagType.WORLD, FlagType.SERVER);
     }
 }

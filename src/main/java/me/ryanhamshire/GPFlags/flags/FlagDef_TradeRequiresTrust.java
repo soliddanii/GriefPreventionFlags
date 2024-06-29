@@ -15,7 +15,7 @@ import me.ryanhamshire.GPFlags.GPFlags;
 import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
 import me.ryanhamshire.GPFlags.TextMode;
-import me.ryanhamshire.GPFlags.util.Util;
+import me.ryanhamshire.GPFlags.util.MessagingUtil;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
@@ -58,7 +58,7 @@ public class FlagDef_TradeRequiresTrust extends FlagDefinition {
 		}
 		
 		if (claim.allowAccess(player) != null) {
-			Util.sendClaimMessage(player, TextMode.Err, "You need access trust to trade in this claim.");
+			MessagingUtil.sendMessage(player, TextMode.Err, Messages.NeedTradePermission);
 			event.setCancelled(true);
 		}
 	}

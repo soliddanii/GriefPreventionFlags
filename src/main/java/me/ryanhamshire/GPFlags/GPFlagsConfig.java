@@ -1,27 +1,25 @@
 package me.ryanhamshire.GPFlags;
 
+import com.google.common.io.Files;
+import me.ryanhamshire.GPFlags.commands.CommandBuyAccessTrust;
+import me.ryanhamshire.GPFlags.commands.CommandBuyBuildTrust;
+import me.ryanhamshire.GPFlags.commands.CommandBuyContainerTrust;
+import me.ryanhamshire.GPFlags.commands.CommandBuySubclaim;
+import me.ryanhamshire.GPFlags.flags.*;
+import me.ryanhamshire.GPFlags.util.MessagingUtil;
+import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import com.google.common.io.Files;
-
-import me.ryanhamshire.GPFlags.commands.CommandBuyAccessTrust;
-import me.ryanhamshire.GPFlags.commands.CommandBuyBuildTrust;
-import me.ryanhamshire.GPFlags.commands.CommandBuyContainerTrust;
-import me.ryanhamshire.GPFlags.commands.CommandBuySubclaim;
-import me.ryanhamshire.GPFlags.flags.*;
-import me.ryanhamshire.GPFlags.util.Util;
-import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 
 public class GPFlagsConfig {
@@ -44,6 +42,9 @@ public class GPFlagsConfig {
         FileConfiguration inConfig = YamlConfiguration.loadConfiguration(new File(FlagsDataStore.configFilePath));
         FileConfiguration outConfig = new YamlConfiguration();
 
+        LOG_ENTER_EXIT_COMMANDS = inConfig.getBoolean("Settings.Log Enter/Exit Messages To Console", true);
+        outConfig.set("Settings.Log Enter/Exit Messages To Console", LOG_ENTER_EXIT_COMMANDS);
+
         List<World> worlds = plugin.getServer().getWorlds();
         ArrayList<String> worldSettingsKeys = new ArrayList<>();
         for (World world : worlds) {
@@ -52,9 +53,6 @@ public class GPFlagsConfig {
 
         for (String worldName : worldSettingsKeys) {
             WorldSettings settings = plugin.getWorldSettingsManager().create(worldName);
-
-            LOG_ENTER_EXIT_COMMANDS = inConfig.getBoolean("Settings.Log Enter/Exit Messages To Console", true);
-            outConfig.set("Settings.Log Enter/Exit Messages To Console", LOG_ENTER_EXIT_COMMANDS);
 
             settings.worldGamemodeDefault = inConfig.getString("World Flags." + worldName + ".Default Gamemode", "survival");
             String worldGMDefault = settings.worldGamemodeDefault;
@@ -93,15 +91,15 @@ public class GPFlagsConfig {
             settings.clearFlagsOnTransferClaim = inConfig.getBoolean("World Flags." + worldName + ".Reset Flags On Transfer Claim", false);
             outConfig.set("World Flags." + worldName + ".Clear Flags On Transfer Claim", settings.clearFlagsOnTransferClaim);
 
-            outConfig.options().header("GriefPrevention Flags\n" + "Plugin Version: " + plugin.getDescription().getVersion() +
+            outConfig.options().header("GP Flags\n" + "Plugin Version: " + plugin.getDescription().getVersion() +
                     "\nServer Version: " + plugin.getServer().getVersion() + "\n\n");
         }
 
         try {
             outConfig.save(FlagsDataStore.configFilePath);
-            Util.log("Finished loading configuration.");
+            MessagingUtil.sendMessage(null, "Finished loading configuration.");
         } catch (IOException exception) {
-            Util.log("Unable to write to the configuration file at \"" + FlagsDataStore.configFilePath + "\"");
+            MessagingUtil.sendMessage(null, "Unable to write to the configuration file at \"" + FlagsDataStore.configFilePath + "\"");
         }
 
         //register flag definitions
@@ -165,6 +163,7 @@ public class GPFlagsConfig {
             this.flagManager.registerFlagDefinition(new FlagDef_NoGrowth(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_OwnerFly(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_OwnerMemberFly(this.flagManager, plugin));
+            this.flagManager.registerFlagDefinition(new FlagDef_PermissionFly(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_NoEnterPlayer(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_PlayerWeather(this.flagManager, plugin));
             this.flagManager.registerFlagDefinition(new FlagDef_PlayerTime(this.flagManager, plugin));
@@ -207,11 +206,7 @@ public class GPFlagsConfig {
             try {
                 Class.forName("org.bukkit.event.raid.RaidTriggerEvent");
                 this.flagManager.registerFlagDefinition(new FlagDef_RaidMemberOnly(this.flagManager, plugin));
-            } catch (ClassNotFoundException e) {
-                if (Util.isRunningMinecraft(1, 14)) {
-                    Util.log("&cRaidEvent classes not found:");
-                    Util.log("&7  - Update to latest Minecraft version for raid flag to work");
-                }
+            } catch (ClassNotFoundException ignored) {
             }
 
             if (Bukkit.getPluginManager().isPluginEnabled("DiscordSRV")) {
@@ -271,18 +266,16 @@ public class GPFlagsConfig {
             List<MessageSpecifier> errors = this.flagManager.load(flagsFile);
             if (errors.size() > 0) {
                 File errorFile = new File(FlagsDataStore.flagsErrorFilePath);
-                //noinspection UnstableApiUsage
                 Files.copy(flagsFile, errorFile);
                 for (MessageSpecifier error : errors) {
-                    Util.log("Load Error: " + plugin.getFlagsDataStore().getMessage(error.messageID, error.messageParams));
+                    MessagingUtil.sendMessage(null, "Load Error: " + plugin.getFlagsDataStore().getMessage(error.messageID, error.messageParams));
                 }
-                Util.log("Problems encountered reading the flags data file! " +
-                        "Please share this log and your 'flagsError.yml' file with the developer.");
+                MessagingUtil.sendMessage(null, "<red>Problems encountered reading the flags data file! " +
+                        "Please share this log and your 'flagsError.yml' and 'flags.yml' files with the developer.");
             }
         } catch (Exception e) {
-            Util.log("Unable to initialize the file system data store.  Details:");
-            Util.log(e.getMessage());
-            e.printStackTrace();
+            MessagingUtil.sendMessage(null, "<red>Unable to initialize the file system data store.  Details:");
+            MessagingUtil.sendMessage(null, e.getMessage());
         }
 
         //drop any flags which no longer correspond to existing land claims (maybe they were deleted)
@@ -295,7 +288,6 @@ public class GPFlagsConfig {
             }
         }
         this.flagManager.removeExceptClaimIDs(validIDs);
-        Util.log("Finished loading data.");
+        MessagingUtil.sendMessage(null, "Finished loading data.");
     }
-    
 }

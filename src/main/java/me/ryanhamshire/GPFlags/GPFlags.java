@@ -6,6 +6,7 @@ import me.ryanhamshire.GPFlags.commands.*;
 import me.ryanhamshire.GPFlags.flags.FlagDefinition;
 import me.ryanhamshire.GPFlags.listener.*;
 import me.ryanhamshire.GPFlags.metrics.Metrics;
+import me.ryanhamshire.GPFlags.util.MessagingUtil;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
@@ -15,7 +16,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import github.scarsz.discordsrv.DiscordSRV;
 import me.ryanhamshire.GPFlags.flags.FlagDef_PrivateChatDiscord;
 import me.ryanhamshire.GPFlags.flags.FlagDef_ViewContainers;
-import me.ryanhamshire.GPFlags.util.Util;
 
 
 /**
@@ -52,6 +52,7 @@ public class GPFlags extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new ClaimModifiedListener(), this);
         }
         Bukkit.getPluginManager().registerEvents(new ClaimTransferListener(), this);
+        Bukkit.getPluginManager().registerEvents(new FlightManager(), this);
 
         this.flagsDataStore = new FlagsDataStore();
         reloadConfig();
@@ -91,12 +92,10 @@ public class GPFlags extends JavaPlugin {
             return GriefPrevention.instance.getDescription().getVersion();
         }));
 
-        try {
-            UpdateChecker.checkForUpdates(this);
-        } catch (Error ignored) {}
+        UpdateChecker.run(this, "gpflags");
 
         float finish = (float) (System.currentTimeMillis() - start) / 1000;
-        Util.log("Successfully loaded in &b%.2f seconds", finish);
+        MessagingUtil.sendMessage(null, "Successfully loaded in " + String.format("%.2f", finish) + " seconds");
     }
 
     public void onDisable() {
@@ -105,7 +104,6 @@ public class GPFlags extends JavaPlugin {
             new ArrayList<>(inv.getViewers()).forEach(HumanEntity::closeInventory);
         });
         if (flagsDataStore != null) {
-            flagsDataStore.close();
             flagsDataStore = null;
         }
         instance = null;

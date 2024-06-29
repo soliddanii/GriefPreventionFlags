@@ -1,12 +1,12 @@
 name: GPFlags
 main: me.ryanhamshire.GPFlags.GPFlags
 depend: [GriefPrevention]
-softdepend: [mcMMO, Vault, MythicMobs, EliteMobs, DiscordSRV]
+softdepend: [mcMMO, Vault, MythicMobs, EliteMobs, PlaceholderAPI, DiscordSRV]
 authors: [Big_Scary, ShaneBee, DmitryRendov, DrBot, soliddanii]
 description: GriefPrevention add-on to set flags in claims.
-website: https://www.spigotmc.org/resources/griefprevention-flags.55773/
+website: https://modrinth.com/plugin/gpflags
 version: '${project.version}'
-api-version: '1.13'
+api-version: '1.14'
 commands:
   gpflags:
     description: Reload or get help

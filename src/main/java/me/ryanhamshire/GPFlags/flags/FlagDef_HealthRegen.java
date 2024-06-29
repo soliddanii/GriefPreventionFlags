@@ -6,7 +6,7 @@ import me.ryanhamshire.GPFlags.GPFlags;
 import me.ryanhamshire.GPFlags.MessageSpecifier;
 import me.ryanhamshire.GPFlags.Messages;
 import me.ryanhamshire.GPFlags.SetFlagResult;
-import me.ryanhamshire.GPFlags.util.Util;
+import me.ryanhamshire.GPFlags.util.MessagingUtil;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 
@@ -36,8 +36,8 @@ public class FlagDef_HealthRegen extends TimedPlayerFlagDefinition {
         if (flag.parameters != null && !flag.parameters.isEmpty()) {
             try {
                 healAmount = Integer.parseInt(flag.parameters);
-            } catch (NumberFormatException e) {
-                Util.log("Problem with health regen amount @ " + player.getLocation().getBlock().getLocation().toString());
+            } catch (NumberFormatException ignored) {
+                // Simply don't heal if amount is invalid
             }
         }
 

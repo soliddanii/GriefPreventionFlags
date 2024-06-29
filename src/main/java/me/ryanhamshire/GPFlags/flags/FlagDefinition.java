@@ -10,7 +10,6 @@ import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -29,6 +28,7 @@ public abstract class FlagDefinition implements Listener {
     WorldSettingsManager settingsManager;
     private int instances = 0;
     protected GPFlags plugin;
+    protected Claim cachedClaim = null;
 
     public FlagDefinition(FlagManager manager, GPFlags plugin) {
         this.flagManager = manager;
@@ -48,9 +48,11 @@ public abstract class FlagDefinition implements Listener {
 
     public abstract List<FlagType> getFlagType();
 
+    // Called when a flag is set to false/true, etc.
     public void onFlagSet(Claim claim, String params) {
     }
 
+    // Called when the flag is killed
     public void onFlagUnset(Claim claim) {
     }
 
@@ -59,45 +61,14 @@ public abstract class FlagDefinition implements Listener {
      *
      * @param location Location for checking for flag
      * @param player Player for checking cached claims
-     * @return Instance of flag at location if set, otherwise null
+     * @return Logical instance of flag at location
      */
     public Flag getFlagInstanceAtLocation(@NotNull Location location, @Nullable Player player) {
-        Flag flag = null;
-        if (GriefPrevention.instance.claimsEnabledForWorld(location.getWorld())) {
-            Claim cachedClaim = null;
-            PlayerData playerData = null;
-            if (player != null) {
-                playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
-                cachedClaim = playerData.lastClaim;
-            }
-
-            Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, false, cachedClaim);
-            if (claim != null) {
-                if (playerData != null) {
-                    playerData.lastClaim = claim;
-                }
-
-                flag = this.flagManager.getFlag(claim.getID().toString(), this);
-                if (flag != null && !flag.getSet()) return null;
-
-                if (flag == null && claim.parent != null) {
-                    flag = this.flagManager.getFlag(claim.parent.getID().toString(), this);
-                    if (flag != null && !flag.getSet()) return null;
-                }
-            }
+        if (player != null) {
+            PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
+            cachedClaim = playerData.lastClaim;
         }
-
-        if (flag == null) {
-            flag = this.flagManager.getFlag(location.getWorld().getName(), this);
-            if (flag != null && !flag.getSet()) return null;
-        }
-
-        if (flag == null) {
-            flag = this.flagManager.getFlag("everywhere", this);
-            if (flag != null && !flag.getSet()) return null;
-        }
-
-        return flag;
+        return flagManager.getEffectiveFlag(location, this.getName(), cachedClaim);
     }
 
     public void incrementInstances() {
@@ -125,15 +96,15 @@ public abstract class FlagDefinition implements Listener {
         /**
          * Flag can be set in a claim
          */
-        CLAIM("&aCLAIM"),
+        CLAIM("<green>CLAIM"),
         /**
          * Flag can be set for an entire world
          */
-        WORLD("&6WORLD"),
+        WORLD("<gold>WORLD"),
         /**
          * Flag can bet set for the entire server
          */
-        SERVER("&3SERVER");
+        SERVER("<dark_aqua>SERVER");
 
         String name;
 
@@ -143,7 +114,7 @@ public abstract class FlagDefinition implements Listener {
 
         @Override
         public String toString() {
-            return ChatColor.translateAlternateColorCodes('&', name + "&7");
+            return name + "<grey>";
         }
     }
 

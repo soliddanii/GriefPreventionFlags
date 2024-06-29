@@ -10,7 +10,6 @@ import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.events.ClaimDeletedEvent;
-import me.ryanhamshire.GriefPrevention.events.ClaimModifiedEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -33,31 +32,8 @@ import java.util.HashMap;
 
 public class PlayerListener implements Listener {
 
-    private final HashMap<Player, Boolean> fallingPlayers = new HashMap<>();
     private static final DataStore dataStore = GriefPrevention.instance.dataStore;
     private final FlagManager FLAG_MANAGER = GPFlags.getInstance().getFlagManager();
-
-    @EventHandler
-    private void onFall(EntityDamageEvent e) {
-        if (!(e.getEntity() instanceof Player)) return;
-        Player p = ((Player) e.getEntity());
-        EntityDamageEvent.DamageCause cause = e.getCause();
-        if (cause != EntityDamageEvent.DamageCause.FALL) return;
-        Boolean val = fallingPlayers.get(p);
-        if (val != null && val) {
-            e.setCancelled(true);
-            fallingPlayers.remove(p);
-        }
-    }
-
-    /**
-     * Add a player to prevent fall damage under certain conditions
-     *
-     * @param player Player to add
-     */
-    public void addFallingPlayer(Player player) {
-        this.fallingPlayers.put(player, true);
-    }
 
     @EventHandler(ignoreCancelled = true)
     private void onMove(PlayerMoveEvent event) {
@@ -67,7 +43,7 @@ public class PlayerListener implements Listener {
         processMovement(locTo, locFrom, player, event);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onTeleport(PlayerTeleportEvent event) {
         Location locTo = event.getTo();
         Location locFrom = event.getFrom();
@@ -108,6 +84,14 @@ public class PlayerListener implements Listener {
         }
     }
 
+    /**
+     *
+     * @param locTo
+     * @param locFrom
+     * @param player
+     * @param event
+     * @return If the created PreClaimBorderEvent was permitted
+     */
     public static boolean processMovement(Location locTo, Location locFrom, Player player, Cancellable event) {
         if (locTo.getBlockX() == locFrom.getBlockX() && locTo.getBlockY() == locFrom.getBlockY() && locTo.getBlockZ() == locFrom.getBlockZ())
             return true;
@@ -135,34 +119,4 @@ public class PlayerListener implements Listener {
         return !playerPreClaimBorderEvent.isCancelled();
     }
 
-    @EventHandler
-    // Disable flight when a player deletes their claim
-    private void onDeleteClaim(ClaimDeletedEvent event) {
-        Claim claim = event.getClaim();
-        World world = claim.getGreaterBoundaryCorner().getWorld();
-        Flag flagOwnerFly = FLAG_MANAGER.getFlag(claim, "OwnerFly");
-        Flag flagOwnerMemberFly = FLAG_MANAGER.getFlag(claim, "OwnerMemberFly");
-        assert world != null;
-        if (flagOwnerFly != null || flagOwnerMemberFly != null) {
-            for (Player player : world.getPlayers()) {
-                if (claim.contains(Util.getInBoundsLocation(player), false, true)) {
-                    Util.disableFlight(player);
-                }
-            }
-        }
-    }
-
-    @EventHandler
-    private void onRespawnEvent(PlayerRespawnEvent event) {
-        Location loc = event.getRespawnLocation();
-        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(loc, false, null);
-        if (claim != null) {
-            Flag flagOwnerFly = GPFlags.getInstance().getFlagManager().getFlag(claim, "OwnerFly");
-            Flag flagOwnerMemberFly = GPFlags.getInstance().getFlagManager().getFlag(claim, "OwnerMemberFly");
-            if (flagOwnerFly != null || flagOwnerMemberFly != null) {
-                return;
-            }
-        }
-        Util.disableFlight(event.getPlayer());
-    }
 }
